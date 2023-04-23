@@ -59,6 +59,47 @@ import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
 
+    class updatecontact extends Thread{
+
+        public void run() {
+            try {
+            long s=System.currentTimeMillis();
+
+            vibrate(100);
+
+            print("tapped on btn");
+
+            List[] list=getlistofbothgroup();
+
+            List<MainActivity.ContactModel> mainbhagtcontacts=list[0];
+
+            List<MainActivity.ContactModel> learningbhagat=list[1];
+
+            SharedPreferences mainGroupsharedPreferences = getSharedPreferences("MainGroupSharedPref",MODE_PRIVATE);
+
+            SharedPreferences leaninggroupbhaktshreadPreferences= getSharedPreferences("LearningGroupSharedPref",MODE_PRIVATE);
+
+            putintoSharedPre(mainbhagtcontacts,mainGroupsharedPreferences);
+
+            putintoSharedPre(learningbhagat,leaninggroupbhaktshreadPreferences);
+
+
+            long e=System.currentTimeMillis();
+
+            e=e-s;
+            e=(int) e/1000;
+
+//            displaysnakbar(v,"Contact Updated in "+e+"s");
+
+            vibrate(1000);
+
+            }catch (Exception e){
+                Log.d("dasadsadasda",e.toString());
+            }
+
+        }
+    }
+
     public  class ContactModel {
         public String id;
         public String sno;
@@ -75,6 +116,7 @@ public class MainActivity extends AppCompatActivity {
     String totallearninggroupmember="17";
     String totalmainlearningpresentmember="0";
     String totallearninggroupabsentmember="0";
+
     HashSet<String> absentlist=new HashSet<>();
 
     String todaydate="";
@@ -115,6 +157,8 @@ public class MainActivity extends AppCompatActivity {
         TextView result=(TextView) findViewById(R.id.Scrollresult);
         Button getreport=(Button) findViewById(R.id.getreport);
         Button getabsent=(Button) findViewById(R.id.absent);
+
+        TextView lastupdatetime=(TextView) findViewById(R.id.lastupdatetime);
 
         displaydate();
 
@@ -307,6 +351,14 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
 
                 try {
+                    String currentDate = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(new Date());
+
+                    String currentTime = new SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(new Date());
+
+                    String res=currentDate+" "+currentTime;
+
+                    lastupdatetime.setText(res.toString());
+
                     Context context = getApplicationContext();
                     int duration = Toast.LENGTH_SHORT;
 
@@ -335,12 +387,20 @@ public class MainActivity extends AppCompatActivity {
                     String ans = "";
                     int absentbhagt = 0;
 
+                    SharedPreferences sharedPreferences12 = getSharedPreferences("lastupdate", MODE_PRIVATE);
+
+                    SharedPreferences.Editor myEditupdatetime = sharedPreferences12.edit();
+
                     if (!Switchbuttonstate) {
                         //main group
                         SharedPreferences SharedPreferences = getSharedPreferences("MainGroupSharedPref", MODE_PRIVATE);
                         SharedPreferences.Editor myEdit = SharedPreferences.edit();
 
+                        String r12=res.toString();
+                        myEditupdatetime.putString("mainlastupdate",r12);
+
                         myEdit.putString("inputstring", enteredstring);
+
                         myEdit.commit();
                         for (int i = 0; i < total; i++) {
                             if (arr[i] == 0) {
@@ -358,10 +418,13 @@ public class MainActivity extends AppCompatActivity {
                         totalmaingrouppresentmember= formatstr(totalmaingroupmember,totalmaingrouppresentmember);
                         totalmaingroupabsentmember= formatstr(totalmaingroupmember,totalmaingroupabsentmember);
 
-                    } else {
+                    }
+                    else {
                         //learning
                         SharedPreferences sharedPreferences = getSharedPreferences("LearningGroupSharedPref", MODE_PRIVATE);
                         SharedPreferences.Editor myEdit = sharedPreferences.edit();
+
+                        myEditupdatetime.putString("learninglastupdate", res.toString());
 
                         myEdit.putString("inputstring", enteredstring);
                         myEdit.commit();
@@ -380,6 +443,8 @@ public class MainActivity extends AppCompatActivity {
                         totalmainlearningpresentmember=  formatstr(totallearninggroupmember,totalmainlearningpresentmember);
                         totallearninggroupabsentmember=  formatstr(totallearninggroupmember,totallearninggroupabsentmember);
                     }
+
+                    myEditupdatetime.commit();
 
                     result.setText(ans.toString());
                     countabsent.setText(absentbhagt + "");
@@ -442,41 +507,14 @@ public class MainActivity extends AppCompatActivity {
         refreshbutton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                long s=System.currentTimeMillis();
-
-                vibrate(100);
-
-                print("tapped on btn");
-
-                displaysnakbar(v,"Contact Updating.....");
-
                 refreshbutton.setVisibility(View.INVISIBLE);
                 refreshbutton.setVisibility(v.INVISIBLE);
 
-                List[] list=getlistofbothgroup();
+                updatecontact updatecontactobj=new updatecontact();
 
-                List<ContactModel> mainbhagtcontacts=list[0];
-
-                List<ContactModel> learningbhagat=list[1];
-
-                SharedPreferences mainGroupsharedPreferences = getSharedPreferences("MainGroupSharedPref",MODE_PRIVATE);
-
-                SharedPreferences leaninggroupbhaktshreadPreferences= getSharedPreferences("LearningGroupSharedPref",MODE_PRIVATE);
-
-                putintoSharedPre(mainbhagtcontacts,mainGroupsharedPreferences);
-
-                putintoSharedPre(learningbhagat,leaninggroupbhaktshreadPreferences);
+                 updatecontactobj.start();
 
                 refreshbutton.setVisibility(v.VISIBLE);
-
-                long e=System.currentTimeMillis();
-
-                e=e-s;
-                e=(int) e/1000;
-
-                displaysnakbar(v,"Contact Updated in "+e+"s");
-
-                vibrate(1000);
             }
         });
 
@@ -790,11 +828,13 @@ public class MainActivity extends AppCompatActivity {
                 || super.onSupportNavigateUp();
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
+    protected  void onStart(){
+        super.onStart();
 
-        Log.d(tag,"destryoed");
+        updatecontact updatecontactobj=new updatecontact();
+
+        updatecontactobj.start();
+
     }
 
     @Override
@@ -810,44 +850,33 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    @Override
-    protected void onRestart() {
-        super.onRestart();
-        Log.d(tag,"restart");
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-
-        Log.d(tag,"pause");
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-
-        SharedPreferences sharedPreferences = getSharedPreferences("Count",MODE_PRIVATE);
-
-        Log.d(tag,"stop");
-    }
-
     public void setText(){
 
         EditText count=(EditText) findViewById(R.id.count);
         EditText countstrings = (EditText) findViewById(R.id.countstring);
+        TextView lastupdatetime=(TextView) findViewById(R.id.lastupdatetime);
+
+        SharedPreferences sharedPreferences1 = getSharedPreferences("lastupdate", MODE_PRIVATE);
 
         if(!Switchbuttonstate) {
+
             SharedPreferences sharedPreferences = getSharedPreferences("MainGroupSharedPref",MODE_PRIVATE);
             String inputstring= sharedPreferences.getString("inputstring", "");
             count.setText(totalmaingroupmember);
             countstrings.setText(inputstring);
+            String res=sharedPreferences1.getString("mainlastupdate", "last-update");
+
+            lastupdatetime.setText(res.toString());
         }
         else {
             SharedPreferences sharedPreferences = getSharedPreferences("LearningGroupSharedPref",MODE_PRIVATE);
             String inputstring = sharedPreferences.getString("inputstring", "");
             count.setText(totallearninggroupmember);
             countstrings.setText(inputstring);
+
+            String res=sharedPreferences1.getString("learninglastupdate", "last-update");
+
+            lastupdatetime.setText(res.toString());
         }
 
     }

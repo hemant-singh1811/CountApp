@@ -37,41 +37,39 @@
         app:layout_constraintTop_toBottomOf="@+id/count"
         app:layout_constraintVertical_bias="0.292" />
 
+
     <Button
         android:id="@+id/button_first"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:backgroundTint="@color/green"
+        android:backgroundTint="@color/purple_500"
         android:bottomLeftRadius="20dp"
         android:bottomRightRadius="20dp"
         android:onClick="onClick"
-        android:paddingTop="-20dp"
-        android:paddingBottom="-20dp"
         android:text=">"
         android:textSize="55sp"
         android:topLeftRadius="20dp"
         android:topRightRadius="20dp"
         app:layout_constraintBottom_toBottomOf="@id/countstring"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.114"
+        app:layout_constraintHorizontal_bias="0.116"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="1.0" />
 
     <TextView
         android:id="@+id/cross"
-        android:layout_width="62dp"
-        android:layout_height="49dp"
+        android:layout_width="36dp"
+        android:layout_height="34dp"
         android:onClick="clearbtn"
         android:text="X"
         android:textSize="25sp"
         app:layout_constraintBottom_toTopOf="@+id/button_first"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.355"
+        app:layout_constraintHorizontal_bias="0.285"
         app:layout_constraintStart_toEndOf="@+id/countstring"
         app:layout_constraintTop_toBottomOf="@+id/count"
-        app:layout_constraintVertical_bias="0.585" />
-
+        app:layout_constraintVertical_bias="0.467" />
 
     <TextView
         android:id="@+id/countabsent"
@@ -174,10 +172,10 @@
         android:text="Copy-Report"
         app:layout_constraintBottom_toTopOf="@+id/scrollview"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.171"
+        app:layout_constraintHorizontal_bias="0.204"
         app:layout_constraintStart_toEndOf="@+id/button_first"
         app:layout_constraintTop_toBottomOf="@+id/countstring"
-        app:layout_constraintVertical_bias="0.338" />
+        app:layout_constraintVertical_bias="0.816" />
 
     <Button
         android:id="@+id/absent"
@@ -186,9 +184,20 @@
         android:text="AB"
         app:layout_constraintBottom_toTopOf="@+id/scrollview"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.428"
+        app:layout_constraintHorizontal_bias="0.423"
         app:layout_constraintStart_toEndOf="@+id/getreport"
         app:layout_constraintTop_toBottomOf="@+id/cross"
-        app:layout_constraintVertical_bias="0.58" />
+        app:layout_constraintVertical_bias="0.834" />
+
+    <TextView
+        android:id="@+id/lastupdatetime"
+        android:layout_width="211dp"
+        android:layout_height="28dp"
+        app:layout_constraintBottom_toTopOf="@+id/absent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.653"
+        app:layout_constraintStart_toEndOf="@+id/button_first"
+        app:layout_constraintTop_toBottomOf="@+id/countstring"
+        app:layout_constraintVertical_bias="0.633" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
