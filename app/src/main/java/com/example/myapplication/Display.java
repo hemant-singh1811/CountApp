@@ -1,6 +1,11 @@
 package com.example.myapplication;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import android.Manifest;
+import android.content.pm.ActivityInfo;
+import android.content.pm.PackageManager;
+import android.nfc.Tag;
 import android.os.Bundle;
 import android.app.ActionBar;
 import android.app.Fragment;
@@ -27,6 +32,9 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
+
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -47,6 +55,8 @@ import android.widget.Toast;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -62,6 +72,8 @@ import java.util.Date;
 
 public class Display extends AppCompatActivity {
 
+    int i=0;
+    String sPref="";
     String totalmaingroupmember="48";
     String totalmaingrouppresentmember="0";
     String totalmaingroupabsentmember="0";
@@ -71,42 +83,56 @@ public class Display extends AppCompatActivity {
     HashSet<String> absentlist=new HashSet<>();
     String todaydate="";
     boolean Switchbuttonstate=false;
-    String tag="MainActivityTag";
+    String tag="DisplayActivityTag";
 
     class updatecontact extends Thread{
 
-        SharedPreferences mainGroupsharedPreferences = getSharedPreferences("MainGroupSharedPref",MODE_PRIVATE);
-        SharedPreferences leaninggroupbhaktshreadPreferences= getSharedPreferences("LearningGroupSharedPref",MODE_PRIVATE);
+        String sPref;
+        View v;
+
+        updatecontact(View v,String sPref){
+            this.v=v;
+            this.sPref=sPref;
+        }
 
         public void run() {
             try {
+
+                SharedPreferences sharedPreferences = getSharedPreferences(sPref,MODE_PRIVATE);
+
                 long s=System.currentTimeMillis();
+
+                displaysnakbar(v,"contact updating....");
 
                 vibrate(100);
 
-                print("tapped on btn");
+                Log.d(tag,"contact updating started");
 
                 List[] list=getlistofbothgroup();
 
-                List<ContactModel> mainbhagtcontacts=list[0];
+                if(sPref.equals("MainGroupSharedPref")){
+                     print("main group button tapped");
+                  List<ContactModel> mainbhagtcontacts=list[0];
 
-                List<ContactModel> learningbhagat=list[1];
-
-                putintoSharedPre(mainbhagtcontacts,mainGroupsharedPreferences);
-
-                putintoSharedPre(learningbhagat,leaninggroupbhaktshreadPreferences);
-
+                  putintoSharedPre(mainbhagtcontacts,sharedPreferences);
+                }
+                else {
+                    List<ContactModel> learningbhagat=list[1];
+                    putintoSharedPre(learningbhagat, sharedPreferences);
+                }
                 long e=System.currentTimeMillis();
 
                 e=e-s;
                 e=(int) e/1000;
 
-//            displaysnakbar(v,"Contact Updated in "+e+"s");
+               displaysnakbar(v,"Contact Updated in "+e+"s");
 
                 vibrate(1000);
+                i--;
 
             }catch (Exception e){
-                Log.d("dasadsadasda",e.toString());
+                Log.d(tag,"error"+e.toString());
+                i--;
             }
 
         }
@@ -122,57 +148,45 @@ public class Display extends AppCompatActivity {
         public Uri photoURI;
     }
 
-    // name of sharedPreferneces
-    // 1- maingroup ("MainGroupSharedPref")
-    // 2- learning group ("LearningGroupSharedPref")
-    // 3- count -> have 2 count of both group (main and learning)
-    //      ->key: ("totalmaingroupmember") , ("totallearninggroupmember")
-    // 4- lastupdate time -> ("lastupdate")
-    //      ->key :  ("mainlastupdate")  ("learninglastupdate")
-
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
+        this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         setContentView(R.layout.activity_display);
 
-        String sPref="";
 
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
-            String value = extras.getString("sharedPref");
-            Log.d("dasdasdasdas",value);
+            String value = extras.getString("sPref");
+            Log.d("DisplayActiviy",value+" this is ");
             sPref=value;
-            //The key argument here must match that used in the other activity
         }
 
-        SharedPreferences sharedPref = getSharedPreferences(sPref,MODE_PRIVATE);
+        View view = View.inflate(this, R.layout.activity_display, null);
 
-        SharedPreferences mainGroupsharedPreferences = getSharedPreferences("MainGroupSharedPref",MODE_PRIVATE);
-        SharedPreferences leaninggroupbhaktshreadPreferences= getSharedPreferences("LearningGroupSharedPref",MODE_PRIVATE);
-        SharedPreferences countsharedPreferences = getSharedPreferences("Count",MODE_PRIVATE);
-        SharedPreferences lastUpdateTimeSharedPreferences = getSharedPreferences("lastupdate", MODE_PRIVATE);
+        updatecontact(view);
 
-        totalmaingroupmember = countsharedPreferences.getString("totalmaingroupmember", "0");
-        totallearninggroupmember = countsharedPreferences.getString("totallearninggroupmember", "0");
+        SharedPreferences sharedPreferences = getSharedPreferences(sPref,MODE_PRIVATE);
 
+        totalmaingroupmember = sharedPreferences.getString("totalmaingroupmember", "0");
 
-        setText(mainGroupsharedPreferences,leaninggroupbhaktshreadPreferences,lastUpdateTimeSharedPreferences);
+        setText(sharedPreferences);
 
         Button button = (Button) findViewById(R.id.button_first);
         EditText count = (EditText) findViewById(R.id.count);
         EditText countstrings = (EditText) findViewById(R.id.countstring);
         TextView cross=(TextView) findViewById(R.id.cross);
         TextView countabsent=(TextView) findViewById(R.id.countabsent);
-        Switch switchbtn=(Switch) findViewById(R.id.switch1);
-        ImageView refreshbutton= (ImageView) findViewById(R.id.refreshbutton);
         TextView result=(TextView) findViewById(R.id.Scrollresult);
         Button getreport=(Button) findViewById(R.id.getreport);
         Button getabsent=(Button) findViewById(R.id.absent);
         TextView lastupdatetime=(TextView) findViewById(R.id.lastupdatetime);
 
-//        displaydate();
+        displaydate();
 
+        String s="println";
 
         getabsent.setOnClickListener(new OnClickListener() {
             @Override
@@ -305,54 +319,16 @@ public class Display extends AppCompatActivity {
             public void afterTextChanged(Editable s) {
                 String updatedcount=count.getText().toString();
 
-                SharedPreferences.Editor myEdit = countsharedPreferences.edit();
-
                 Log.d(tag+"23","textchanged"+updatedcount);
 
-                if(!Switchbuttonstate){
+                    SharedPreferences.Editor myEdit = sharedPreferences.edit();
                     totalmaingroupmember=updatedcount;
                     myEdit.putString("totalmaingroupmember", updatedcount);
-                }else{
-                    totallearninggroupmember=updatedcount;
-                    myEdit.putString("totallearninggroupmember", updatedcount);
-                }
-                myEdit.commit();
+                    myEdit.commit();
 
                 Toast t1=Toast.makeText(getApplicationContext(),"Updated", Toast.LENGTH_SHORT);
                 t1.show();
 
-                String val=countsharedPreferences.getString("totalmaingroupmember", "0");
-
-                Log.d(tag+"23","shared : "+val);
-            }
-        });
-
-        switchbtn.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.d(tag+"11","click on switch");
-                Switchbuttonstate=!Switchbuttonstate;
-                Log.d(tag+"11",Switchbuttonstate+"");
-                result.setText("");
-                String displaytext="change to";
-                if(!Switchbuttonstate) {
-                    count.setText(totalmaingroupmember);
-                    displaytext+=" main group";
-                }
-                else {
-                    count.setText(totallearninggroupmember);
-                    displaytext+=" learning group";
-                }
-
-                setText(mainGroupsharedPreferences,leaninggroupbhaktshreadPreferences,lastUpdateTimeSharedPreferences);
-
-                result.setText("");
-                countabsent.setText("");
-                absentlist=new HashSet<>();
-
-                Toast t1=Toast.makeText(getApplicationContext(),displaytext, Toast.LENGTH_SHORT);
-                t1.show();
-                vibrate(300);
             }
         });
 
@@ -364,12 +340,9 @@ public class Display extends AppCompatActivity {
 
                     String currentTime = new SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(new Date());
 
-                    String res=currentDate+" "+currentTime;
+                    String lastupdatetimestr=currentDate+" "+currentTime;
 
-                    lastupdatetime.setText(res.toString());
-
-                    Context context = getApplicationContext();
-                    int duration = Toast.LENGTH_SHORT;
+                    lastupdatetime.setText(lastupdatetimestr.toString());
 
                     String a = count.getText().toString();
                     int total = Integer.parseInt(a);
@@ -396,22 +369,17 @@ public class Display extends AppCompatActivity {
                     String ans = "";
                     int absentbhagt = 0;
 
-                    SharedPreferences.Editor myEditupdatetime = lastUpdateTimeSharedPreferences.edit();
+                        SharedPreferences.Editor myEdit = sharedPreferences.edit();
 
-                    if (!Switchbuttonstate) {
-                        //main group
-                        SharedPreferences.Editor myEdit = mainGroupsharedPreferences.edit();
-
-                        String r12=res.toString();
-                        myEditupdatetime.putString("mainlastupdate",r12);
-
+                        myEdit.putString("mainlastupdate",lastupdatetimestr.toString());
                         myEdit.putString("inputstring", enteredstring);
 
                         myEdit.commit();
+
                         for (int i = 0; i < total; i++) {
                             if (arr[i] == 0) {
                                 String sno = (i + 1) + "";
-                                String s1 = mainGroupsharedPreferences.getString(sno, "defvalue");
+                                String s1 = sharedPreferences.getString(sno, "defvalue");
                                 absentlist.add(s1);
                                 Log.d(tag,"button : "+s1);
                                 absentbhagt++;
@@ -423,33 +391,6 @@ public class Display extends AppCompatActivity {
 
                         totalmaingrouppresentmember= formatstr(totalmaingroupmember,totalmaingrouppresentmember);
                         totalmaingroupabsentmember= formatstr(totalmaingroupmember,totalmaingroupabsentmember);
-
-                    }
-                    else {
-                        //learning
-                        SharedPreferences.Editor myEdit = leaninggroupbhaktshreadPreferences.edit();
-
-                        myEditupdatetime.putString("learninglastupdate", res.toString());
-
-                        myEdit.putString("inputstring", enteredstring);
-                        myEdit.commit();
-                        for (int i = 0; i < total; i++) {
-                            if (arr[i] == 0) {
-                                String sno = (i + 1) + "";
-                                String s1 = leaninggroupbhaktshreadPreferences.getString(sno, "defvalue");
-                                absentlist.add(s1);
-                                absentbhagt++;
-                                ans += s1 + "\n";
-                            }
-                        }
-                        totalmainlearningpresentmember="" + (total-absentbhagt);
-                        totallearninggroupabsentmember=""+absentbhagt;
-
-                        totalmainlearningpresentmember=  formatstr(totallearninggroupmember,totalmainlearningpresentmember);
-                        totallearninggroupabsentmember=  formatstr(totallearninggroupmember,totallearninggroupabsentmember);
-                    }
-
-                    myEditupdatetime.commit();
 
                     result.setText(ans.toString());
                     countabsent.setText(absentbhagt + "");
@@ -508,21 +449,6 @@ public class Display extends AppCompatActivity {
                 countabsent.setText("");
             }
         });
-
-        refreshbutton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                refreshbutton.setVisibility(View.INVISIBLE);
-                refreshbutton.setVisibility(v.INVISIBLE);
-
-                updatecontact updatecontactobj=new updatecontact();
-
-                updatecontactobj.start();
-
-                refreshbutton.setVisibility(v.VISIBLE);
-            }
-        });
-
     }
 
     public void displaysnakbar(View view,String data){
@@ -551,12 +477,12 @@ public class Display extends AppCompatActivity {
     }
 
     private void displaydate() {
-        TextView date = (TextView) findViewById(R.id.date);
+//        TextView date = (TextView) findViewById(R.id.date);
         String currentDate = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(new Date());
 
         Date currentTime = Calendar.getInstance().getTime();
         todaydate=""+currentDate.toString();
-        date.setText(currentDate.toString());
+//        date.setText(currentDate.toString());
     }
 
     public void vibrate(int duration){
@@ -611,16 +537,17 @@ public class Display extends AppCompatActivity {
         Log.d(tag,data);
     }
 
-    public void print(String extratag,String data)
-    {
+    public void print(String extratag,String data) {
         Log.d(tag+extratag,data);
     }
 
     public  List[] getlistofbothgroup(){
 
+        try {
         List<ContactModel> contacts= getContacts(this);
 
         List<ContactModel> bhagatcontactslist=new ArrayList<>();
+        HashMap<String,Integer> mainmap=new HashMap<>();
         List<ContactModel> learningcontactslist=new ArrayList<>();
 
         List[] list=new List[2];
@@ -632,45 +559,35 @@ public class Display extends AppCompatActivity {
                 String end= name.substring(name.length()-2);
 
                 if(Character.isDigit(name.charAt(0)) && end.equals("SV")){
-
                     if(isbelongtolearninggroup(name)){
-
                         String[] arr = name.split(" .");
-
-                        int sno=getsno(arr[0]);
-
-                        x.sno=""+sno;
-
+                        x.sno=""+getsno(arr[0]);
                         learningcontactslist.add(x);
-
-
                     }else{
-                        String[] arr = name.split(" .");
+                        if(!mainmap.containsKey(x.mobileNumber)){
+                            String[] arr = name.split(" .");
+                            x.sno=""+getsno(arr[0]);
+                            bhagatcontactslist.add(x);
+                            mainmap.put(x.mobileNumber,1);
+                        }
 
-                        int sno=getsno(arr[0]);
-
-//                        Log.d(tag,"sno - "+sno);
-                        x.sno=""+sno;
-                        bhagatcontactslist.add(x);
                     }
-//                    Log.d(tag, x.mobileNumber.toString());
                 }
 
             }
             catch (Exception e){
-
                 Toast.makeText(this, "Error occur Clicked", Toast.LENGTH_SHORT).show();
-
-
                 Log.d(tag,"string split error ocoor");
             }
         }
-
         list[0]=new ArrayList<>(bhagatcontactslist);
         list[1]=new ArrayList<>(learningcontactslist);
 
         return list;
-
+        }catch (Exception e)
+        {
+            throw  e;
+        }
     }
 
     public static int getsno(String str) {
@@ -737,10 +654,12 @@ public class Display extends AppCompatActivity {
     }
 
     public List<ContactModel> getContacts(Context ctx) {
+        try {
+
         List<ContactModel> list = new ArrayList<>();
         ContentResolver contentResolver = ctx.getContentResolver();
         Cursor cursor = contentResolver.query(ContactsContract.Contacts.CONTENT_URI, null, null, null, null);
-        try {
+
             if (cursor.getCount() > 0) {
                 while (cursor.moveToNext()) {
                     String id = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
@@ -759,7 +678,6 @@ public class Display extends AppCompatActivity {
                         }
                         while (cursorInfo.moveToNext()) {
                             ContactModel info = new ContactModel();
-//                        Log.d("contact",info)
                             info.id = id;
                             info.sno = "";
                             info.name = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
@@ -775,10 +693,13 @@ public class Display extends AppCompatActivity {
                 cursor.close();
             }
 
-        }catch (Exception e){
-            Log.d("",e.toString());
-        }
         return list;
+
+        }catch (SecurityException e){
+            print("e : ",e.toString());
+            return null;
+//            throw e;
+        }
     }
 
     public void copyingdata(String displaystring){
@@ -794,46 +715,33 @@ public class Display extends AppCompatActivity {
         t1.show();
     }
 
-    protected  void onStart(){
-        super.onStart();
+    public void updatecontact(View v){
 
-        updatecontact updatecontactobj=new updatecontact();
+        if(i==0) {
+            i++;
+            updatecontact updatecontactobj = new updatecontact(v,sPref);
 
-//        updatecontactobj.start();
+            updatecontactobj.start();
+        }
 
     }
 
-    public void setText(
-            SharedPreferences mainGroupsharedPreferences,
-            SharedPreferences leaninggroupbhaktshreadPreferences,
-            SharedPreferences lastUpdateTimeSharedPreferences
-    ){
+    public void setText(SharedPreferences sPref){
 
         EditText count=(EditText) findViewById(R.id.count);
         EditText countstrings = (EditText) findViewById(R.id.countstring);
         TextView lastupdatetime=(TextView) findViewById(R.id.lastupdatetime);
 
-        if(!Switchbuttonstate) {
-
-            String inputstring= mainGroupsharedPreferences.getString("inputstring", "");
+            String inputstring= sPref.getString("inputstring", "deaf");
 
             count.setText(totalmaingroupmember);
             countstrings.setText(inputstring);
 
-            String res=lastUpdateTimeSharedPreferences.getString("mainlastupdate", "last-update");
-
-            lastupdatetime.setText(res.toString());
-        }
-        else {
-            String inputstring = leaninggroupbhaktshreadPreferences.getString("inputstring", "");
-
-            count.setText(totallearninggroupmember);
-            countstrings.setText(inputstring);
-
-            String res=lastUpdateTimeSharedPreferences.getString("learninglastupdate", "last-update");
+            String res=sPref.getString("mainlastupdate", "last-update");
 
             lastupdatetime.setText(res.toString());
 
-        }
     }
+
 }
+

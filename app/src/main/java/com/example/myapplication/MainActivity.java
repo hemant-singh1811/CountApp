@@ -26,12 +26,20 @@ public class MainActivity extends AppCompatActivity {
         Button btn1=(Button) findViewById(R.id.mainbtn);
         Button btn2=(Button) findViewById(R.id.learnbtn);
 
+        // name of sharedPreferneces
+        // 1- maingroup ("MainGroupSharedPref")
+        // 2- learning group ("LearningGroupSharedPref")
+        // 3- count -> have 2 count of both group (main and learning)
+        //      ->key: ("totalmaingroupmember") , ("totallearninggroupmember")
+        // 4- lastupdate time -> ("lastupdate")
+        //      ->key :  ("mainlastupdate")  ("learninglastupdate")
+
+
         btn1.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent i = new Intent(getApplicationContext(), Display.class);
-                i.putExtra("Value1", "This value one for ActivityTwo ");
-                i.putExtra("Value2", "This value two ActivityTwo");
+                i.putExtra("sPref", "MainGroupSharedPref");
                 startActivity(i);
             }
         });
@@ -40,8 +48,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent i = new Intent(getApplicationContext(), Display.class);
-                i.putExtra("Value1", "This value one for ActivityTwo ");
-                i.putExtra("Value2", "This value two ActivityTwo");
+                i.putExtra("sPref", "LearningGroupSharedPref");
                 startActivity(i);
             }
         });
