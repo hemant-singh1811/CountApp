@@ -9,8 +9,24 @@
     <EditText
         android:id="@+id/inputString"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="400dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="20dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/pasteButton"
+        app:layout_constraintVertical_bias="0.01"
+        tools:layout_editor_absoluteX="16dp" />
 
-        />
+    <ImageView
+        android:id="@+id/pasteButton"
+        android:layout_width="40dp"
+        android:layout_height="42dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.957"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.038"
+        app:srcCompat="@drawable/paste_icon" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

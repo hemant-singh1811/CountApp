@@ -2,6 +2,8 @@ package com.example.myapplication;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.Editable;
@@ -9,6 +11,7 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -35,6 +38,7 @@ public class resizedText extends AppCompatActivity {
         }
 
         EditText inputStringView=(EditText) findViewById(R.id.inputString);
+        ImageView pasteButton=(ImageView) findViewById(R.id.pasteButton);
 
         inputStringView.setText(inputString);
 
@@ -65,6 +69,28 @@ public class resizedText extends AppCompatActivity {
 
             }
         });
+
+        pasteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                String currentInputString=inputStringView.getText().toString();
+
+                ClipboardManager myClipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+
+                ClipData clipData=myClipboard.getPrimaryClip();
+
+                String copiedText=clipData.getItemAt(0).coerceToText(getApplicationContext()).toString();
+
+                currentInputString+=copiedText;
+
+                Log.d(tag,copiedText);
+
+                inputStringView.setText(currentInputString);
+
+            }
+        });
+
 
     }
 }

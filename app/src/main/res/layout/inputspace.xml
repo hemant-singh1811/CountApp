@@ -67,5 +67,17 @@
         app:layout_constraintVertical_bias="0.138"
         app:srcCompat="@drawable/resize" />
 
+    <ImageView
+        android:id="@+id/pasteButton"
+        android:layout_width="25dp"
+        android:layout_height="20dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.82"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.55"
+        app:srcCompat="@drawable/paste_icon" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

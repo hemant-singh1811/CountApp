@@ -212,6 +212,8 @@ public class Display extends AppCompatActivity {
         ImageView getabsent = (ImageView) findViewById(R.id.absent);
         TextView lastupdatetime = (TextView) findViewById(R.id.lastupdatetime);
         ImageView resizeButton = (ImageView) findViewById(R.id.resizeText);
+        ImageView pasteButton=(ImageView) findViewById(R.id.pasteButton);
+
 
         displaydate();
 
@@ -374,6 +376,27 @@ public class Display extends AppCompatActivity {
 
                 Toast t1 = Toast.makeText(getApplicationContext(), "Updated", Toast.LENGTH_SHORT);
                 t1.show();
+
+            }
+        });
+
+        pasteButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                String currentInputString=countstrings.getText().toString();
+
+                ClipboardManager myClipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+
+                ClipData clipData=myClipboard.getPrimaryClip();
+
+                String copiedText=clipData.getItemAt(0).coerceToText(getApplicationContext()).toString();
+
+                currentInputString+=copiedText;
+
+                Log.d(tag,copiedText);
+
+                countstrings.setText(currentInputString);
 
             }
         });
