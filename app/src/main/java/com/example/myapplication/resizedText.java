@@ -4,8 +4,12 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.ClipData;
 import android.content.ClipboardManager;
+import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -43,6 +47,9 @@ public class resizedText extends AppCompatActivity {
         inputStringView.setText(inputString);
 
         sharedPreferences = getSharedPreferences(sPref,MODE_PRIVATE);
+
+        inputStringView.setSelection(inputStringView.getText().length());
+
 
         inputStringView.addTextChangedListener(new TextWatcher(){
 
@@ -88,9 +95,21 @@ public class resizedText extends AppCompatActivity {
 
                 inputStringView.setText(currentInputString);
 
+                inputStringView.setSelection(inputStringView.getText().length());
+
+                vibrate(250);
             }
         });
+    }
 
-
+    public void vibrate(int duration) {
+        Vibrator vib = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+        // Vibrate for 2000 milliseconds
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            vib.vibrate(VibrationEffect.createOneShot(duration, VibrationEffect.DEFAULT_AMPLITUDE));
+        } else {
+            //deprecated in API 26
+            vib.vibrate(duration);
+        }
     }
 }

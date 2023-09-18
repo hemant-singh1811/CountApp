@@ -228,6 +228,7 @@ public class Display extends AppCompatActivity {
 
                 String inputStr = countstrings.getText().toString();
                 resizedText(inputStr);
+                vibrate(250);
             }
         });
 
@@ -277,7 +278,7 @@ public class Display extends AppCompatActivity {
                 }
 
                 copyingdata(resultstr);
-                vibrate(300);
+                vibrate(250);
             }
         });
 
@@ -346,7 +347,7 @@ public class Display extends AppCompatActivity {
                 }
 
                 copyingdata(resultstr);
-                vibrate(300);
+                vibrate(250);
 
             }
         });
@@ -376,6 +377,7 @@ public class Display extends AppCompatActivity {
 
                 Toast t1 = Toast.makeText(getApplicationContext(), "Updated", Toast.LENGTH_SHORT);
                 t1.show();
+                vibrate(250);
 
             }
         });
@@ -398,6 +400,9 @@ public class Display extends AppCompatActivity {
 
                 countstrings.setText(currentInputString);
 
+                countstrings.setSelection(countstrings.getText().length());
+
+                vibrate(250);
             }
         });
 
@@ -406,6 +411,9 @@ public class Display extends AppCompatActivity {
             public void onClick(View v) {
 
                 try {
+
+                    vibrate(250);
+
                     String currentDate = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(new Date());
 
                     String currentTime = new SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(new Date());
@@ -467,6 +475,8 @@ public class Display extends AppCompatActivity {
 
                     InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
 
+
+
                     if (imm.isAcceptingText()) {
                         hidekeyboard();
                         Log.d(tag, "Software Keyboard was shown");
@@ -506,7 +516,7 @@ public class Display extends AppCompatActivity {
                 ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
                 ClipData clip = ClipData.newPlainText("label", getstring);
                 clipboard.setPrimaryClip(clip);
-                vibrate(300);
+                vibrate(250);
 
             }
         });
@@ -517,6 +527,7 @@ public class Display extends AppCompatActivity {
                 countstrings.setText("");
                 result.setText("");
                 countabsent.setText("");
+                vibrate(250);
             }
         });
 
