@@ -3,6 +3,7 @@ package com.example.myapplication;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.pm.ActivityInfo;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.content.ClipData;
 import android.content.ClipboardManager;
@@ -68,10 +69,10 @@ public class Display extends AppCompatActivity {
     class updatecontact extends Thread {
 
         String sPref;
-        View v;
+        View view;
 
-        updatecontact(View v, String sPref) {
-            this.v = v;
+        updatecontact(View view, String sPref) {
+            this.view = view;
             this.sPref = sPref;
         }
 
@@ -80,37 +81,36 @@ public class Display extends AppCompatActivity {
 
                 SharedPreferences sharedPreferences = getSharedPreferences(sPref, MODE_PRIVATE);
 
-                long s = System.currentTimeMillis();
-
-                displaysnakbar(v, "contact updating....");
-
                 vibrate(100);
 
-                Log.d(tag, "contact updating started");
+                String contactIdentifier=sharedPreferences.getString(sPref+"-identifier","SM");
 
-                List[] list = getlistofbothgroup();
+                displaysnakbar(view, contactIdentifier +" Tag Contact Updating....");
+
+                List[] list = getlistofbothgroup(contactIdentifier);
+                int foundContact=0;
 
                 if (sPref.equals("MainGroupSharedPref")) {
                     print("main group button tapped");
                     List<ContactModel> mainbhagtcontacts = list[0];
-
+                    foundContact=mainbhagtcontacts.size();
                     putintoSharedPre(mainbhagtcontacts, sharedPreferences);
                 } else {
                     List<ContactModel> learningbhagat = list[1];
+                    foundContact=learningbhagat.size();
                     putintoSharedPre(learningbhagat, sharedPreferences);
                 }
-                long e = System.currentTimeMillis();
 
-                e = e - s;
-                e = (int) e / 1000;
+                String printMessage=foundContact+" Contacts Found";
 
-                displaysnakbar(v, "Contact Updated in " + e + "s");
+                displaysnakbar(view, printMessage);
 
-                vibrate(8000);
+                vibrate(1500);
                 i--;
 
             } catch (Exception e) {
                 Log.d(tag, "error" + e.toString());
+                displaysnakbar(view, "Something Went Wrong");
                 i--;
             }
 
@@ -256,7 +256,8 @@ public class Display extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                String[] reportFormat = {"🙏बन्दीछोड सतगुरु रामपाल जी महाराज जी की जय हो🙏", "🌹 देवली+ संगम विहार सोशल मीडिया सेवा🌹", "{date}", "की सेवा का विवरण", "जिन भगतात्माओ ने सेवा की है।", "Total members        ➡", "{totalmember}", "PRESENT.                 ➡", "{presentmember}", "ABSENT.                   ➡", "{absentmember}", "Note:- सभी भगतात्माओ से प्रार्थना है सेवा में बढ़-चढ़कर सहयोग करें।", "🙏 सत साहेब जी 🙏"};
+                String[] reportFormat = {"🙏बन्दीछोड सतगुरु रामपाल जी महाराज जी की जय हो🙏", "🌹 अंबेडकर नगर सोशल मीडिया सेवा🌹", "{date}", "की सेवा का विवरण", "जिन भगतात्माओ ने सेवा की है।", "Total members        ➡", "{totalmember}", "PRESENT.                 ➡", "{presentmember}", "ABSENT.                   ➡", "{absentmember}", "Note:- सभी भगतात्माओ से प्रार्थना है सेवा में बढ़-चढ़कर सहयोग करें।", "🙏 सत साहेब जी 🙏"};
+//                String[] reportFormat = {"🙏बन्दीछोड सतगुरु रामपाल जी महाराज जी की जय हो🙏", "🌹 देवली+ संगम विहार सोशल मीडिया सेवा🌹", "{date}", "की सेवा का विवरण", "जिन भगतात्माओ ने सेवा की है।", "Total members        ➡", "{totalmember}", "PRESENT.                 ➡", "{presentmember}", "ABSENT.                   ➡", "{absentmember}", "Note:- सभी भगतात्माओ से प्रार्थना है सेवा में बढ़-चढ़कर सहयोग करें।", "🙏 सत साहेब जी 🙏"};
 
                 String[] reportFormat1 = {"🙏बन्दीछोड सतगुरु रामपाल जी महाराज जी की जय हो🙏", "🌹 देवली+ संगम विहार सोशल मीडिया सेवा🌹", "{date}", "की सेवा का विवरण", "जिन भगतात्माओ ने सेवा की है।", "Total members        ➡", "{totalmember}", "PRESENT.                 ➡", "{presentmember}", "ABSENT.                   ➡", "{absentmember}", "Note:- सभी भगतात्माओ से प्रार्थना है सेवा में बढ़-चढ़कर सहयोग करें।", "🙏 सत साहेब जी 🙏"};
 
@@ -516,9 +517,14 @@ public class Display extends AppCompatActivity {
     }
 
     public void displaysnakbar(View view, String data) {
-        Snackbar snk1 = Snackbar.make(view, data, Snackbar.LENGTH_SHORT)
+        Snackbar snk = Snackbar.make(view, data, Snackbar.LENGTH_SHORT)
                 .setAction("Action", null);
-        snk1.show();
+        View sbView = snk.getView();
+
+        sbView.setBackgroundColor(Color.parseColor("#FFFFFF"));
+ 
+
+        snk.show();
 
     }
 
@@ -604,7 +610,7 @@ public class Display extends AppCompatActivity {
         Log.d(tag + extratag, data);
     }
 
-    public List[] getlistofbothgroup() {
+    public List[] getlistofbothgroup(String contactIdentifier) {
 
         try {
             List<ContactModel> contacts = getContacts(this);
@@ -614,8 +620,6 @@ public class Display extends AppCompatActivity {
             List<ContactModel> learningcontactslist = new ArrayList<>();
 
             List[] list = new List[2];
-
-            String contactIdentifier = "SV";
 
             for (ContactModel x : contacts) {
                 String name = x.name;
