@@ -2,13 +2,8 @@ package com.example.myapplication;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.Manifest;
 import android.content.pm.ActivityInfo;
-import android.content.pm.PackageManager;
-import android.nfc.Tag;
 import android.os.Bundle;
-import android.app.ActionBar;
-import android.app.Fragment;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.ContentResolver;
@@ -19,14 +14,10 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
-import android.os.Bundle;
 
 import com.google.android.material.snackbar.Snackbar;
-
-import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.VibrationEffect;
 import android.provider.ContactsContract;
@@ -35,41 +26,20 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
-import androidx.navigation.ui.AppBarConfiguration;
-import androidx.navigation.ui.NavigationUI;
-
-import com.example.myapplication.databinding.ActivityMainBinding;
-
-import android.view.*;
-import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
-import java.util.function.LongFunction;
-
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.app.ActionBarDrawerToggle;
-import androidx.appcompat.widget.Toolbar;
 
 import android.os.Vibrator;
 
@@ -136,7 +106,7 @@ public class Display extends AppCompatActivity {
 
                 displaysnakbar(v, "Contact Updated in " + e + "s");
 
-                vibrate(1000);
+                vibrate(8000);
                 i--;
 
             } catch (Exception e) {
@@ -202,18 +172,18 @@ public class Display extends AppCompatActivity {
 
         setText(sharedPreferences);
 
-        ImageView button = (ImageView) findViewById(R.id.button_first);
+
+        ImageView convertSnoToNameButton = (ImageView) findViewById(R.id.convertSnoToName);
         EditText count = (EditText) findViewById(R.id.count);
-        EditText countstrings = (EditText) findViewById(R.id.countstring);
+        EditText countstrings = (EditText) findViewById(R.id.inputHashText);
         ImageView cross = (ImageView) findViewById(R.id.cross);
         TextView countabsent = (TextView) findViewById(R.id.countabsent);
         TextView result = (TextView) findViewById(R.id.Scrollresult);
-        ImageView getreport = (ImageView) findViewById(R.id.getreport);
-        ImageView getabsent = (ImageView) findViewById(R.id.absent);
+        ImageView getReportButton = (ImageView) findViewById(R.id.getreport);
+        ImageView getAbsentButton = (ImageView) findViewById(R.id.getabsent);
         TextView lastupdatetime = (TextView) findViewById(R.id.lastupdatetime);
         ImageView resizeButton = (ImageView) findViewById(R.id.resizeText);
         ImageView pasteButton=(ImageView) findViewById(R.id.pasteButton);
-
 
         displaydate();
 
@@ -232,7 +202,7 @@ public class Display extends AppCompatActivity {
             }
         });
 
-        getabsent.setOnClickListener(new OnClickListener() {
+        getAbsentButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 String[] str = {"इन सेवादारों ने आज सेवा नही की हैं", "date"};
@@ -282,7 +252,7 @@ public class Display extends AppCompatActivity {
             }
         });
 
-        getreport.setOnClickListener(new OnClickListener() {
+        getReportButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
 
@@ -406,7 +376,7 @@ public class Display extends AppCompatActivity {
             }
         });
 
-        button.setOnClickListener(new OnClickListener() {
+        convertSnoToNameButton.setOnClickListener(new OnClickListener() {
 
             public void onClick(View v) {
 
@@ -535,7 +505,6 @@ public class Display extends AppCompatActivity {
 
     public void onResume() {
         super.onResume();
-
         Log.d(tag, "onResume: called");
         setText(sharedPreferences);
     }
@@ -586,7 +555,6 @@ public class Display extends AppCompatActivity {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             vib.vibrate(VibrationEffect.createOneShot(duration, VibrationEffect.DEFAULT_AMPLITUDE));
         } else {
-            //deprecated in API 26
             vib.vibrate(duration);
         }
     }
@@ -824,7 +792,7 @@ public class Display extends AppCompatActivity {
     public void setText(SharedPreferences shPref) {
 
         EditText count=(EditText) findViewById(R.id.count);
-        EditText countstrings = (EditText) findViewById(R.id.countstring);
+        EditText countstrings = (EditText) findViewById(R.id.inputHashText);
         TextView lastupdatetime = (TextView) findViewById(R.id.lastupdatetime);
 
         String inputstring = shPref.getString("inputstring", "");
@@ -839,6 +807,8 @@ public class Display extends AppCompatActivity {
 
         Log.d(tag, "setText called");
         Log.d(tag, inputstring);
+
+        countstrings.setSelection(countstrings.getText().length());
 
     }
 

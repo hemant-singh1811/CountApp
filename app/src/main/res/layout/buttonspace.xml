@@ -6,7 +6,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <ImageView
-        android:id="@+id/button_first"
+        android:id="@+id/convertSnoToName"
         android:layout_width="70dp"
         android:layout_height="60dp"
         android:padding="5dp"
@@ -46,7 +46,7 @@
         app:srcCompat="@drawable/present_clipboard" />
 
     <ImageView
-        android:id="@+id/absent"
+        android:id="@+id/getabsent"
         android:layout_width="90dp"
         android:layout_height="65dp"
         android:bottomLeftRadius="20dp"
