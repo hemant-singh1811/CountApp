@@ -519,11 +519,16 @@ public class Display extends AppCompatActivity {
     public void displaysnakbar(View view, String data) {
         Snackbar snk = Snackbar.make(view, data, Snackbar.LENGTH_SHORT)
                 .setAction("Action", null);
+//        if(isContactTobeDisplaying) {
+//            snk.setAction("View Contacts button", new OnClickListener() {
+//                @Override
+//                public void onClick(View v) {
+//
+//                }
+//            });
+//    }
+
         View sbView = snk.getView();
-
-        sbView.setBackgroundColor(Color.parseColor("#FFFFFF"));
- 
-
         snk.show();
 
     }
