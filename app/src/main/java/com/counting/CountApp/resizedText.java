@@ -1,4 +1,4 @@
-package com.example.myapplication;
+package com.counting.CountApp;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -16,8 +16,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
+import com.counting.CountApp.R;
 
 public class resizedText extends AppCompatActivity {
 

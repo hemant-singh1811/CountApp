@@ -1,10 +1,12 @@
-package com.example.myapplication;
+package com.counting.CountApp;
 
 import android.content.Intent;
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import android.view.View;
-import com.example.myapplication.databinding.ActivityMainBinding;
+
+import com.counting.CountApp.R;
+import com.counting.CountApp.databinding.ActivityMainBinding;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 

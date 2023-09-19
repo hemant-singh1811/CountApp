@@ -11,15 +11,15 @@ android {
             keyPassword '11seattle'
         }
     }
-    namespace 'com.example.myapplication'
-    compileSdk 32
+    namespace 'com.counting.CountApp'
+    compileSdk 33
 
     defaultConfig {
-        applicationId "com.example.myapplication"
+        applicationId "com.counting.CountApp"
         minSdk 21
-        targetSdk 32
-        versionCode 1
-        versionName "1.0"
+        targetSdk 33
+        versionCode 2
+        versionName "1.2"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }

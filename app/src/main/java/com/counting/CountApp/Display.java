@@ -1,9 +1,8 @@
-package com.example.myapplication;
+package com.counting.CountApp;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.pm.ActivityInfo;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.content.ClipData;
 import android.content.ClipboardManager;
@@ -17,7 +16,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
-
+import com.counting.CountApp.R;
 import com.google.android.material.snackbar.Snackbar;
 
 import android.os.VibrationEffect;

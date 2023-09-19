@@ -20,21 +20,21 @@
         android:theme="@style/Theme.MyApplication"
         tools:targetApi="31">
         <activity
-            android:name=".resizedText"
+            android:name="com.counting.CountApp.resizedText"
             android:exported="false">
             <meta-data
                 android:name="android.app.lib_name"
                 android:value="" />
         </activity>
         <activity
-            android:name=".groupConfig"
+            android:name="com.counting.CountApp.groupConfig"
             android:exported="false">
             <meta-data
                 android:name="android.app.lib_name"
                 android:value="" />
         </activity>
         <activity
-            android:name=".Display"
+            android:name="com.counting.CountApp.Display"
             android:exported="false">
             <meta-data
                 android:name="android.app.lib_name"
@@ -52,7 +52,7 @@
                 android:value="" />
         </activity>
         <activity
-            android:name=".MainActivity"
+            android:name="com.counting.CountApp.MainActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:exported="true"
             android:label="@string/app_name"
