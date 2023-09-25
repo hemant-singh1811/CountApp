@@ -1,8 +1,14 @@
 package com.counting.CountApp;
 
-import androidx.appcompat.app.AppCompatActivity;
+import static android.Manifest.permission.READ_CONTACTS;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+
+import android.app.Activity;
 import android.content.pm.ActivityInfo;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.content.ClipData;
 import android.content.ClipboardManager;
@@ -16,6 +22,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
+
 import com.counting.CountApp.R;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -45,6 +52,7 @@ import android.os.Vibrator;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Random;
 
 public class Display extends AppCompatActivity {
 
@@ -64,85 +72,15 @@ public class Display extends AppCompatActivity {
     String prevActivity = "";
     String tag = "DisplayActivityTag";
     SharedPreferences sharedPreferences = null;
+    int REQ_CODE = 200;
+    View view = null;
+    String area = "";
+    updatecontact updatecontactobj;
+    //        String[] reportFormat = {"🙏बन्दीछोड सतगुरु रामपाल जी महाराज जी की जय हो🙏", "🌹 अंबेडकर नगर सोशल मीडिया सेवा🌹", "{date}", "की सेवा का विवरण", "जिन भगतात्माओ ने सेवा की है।", "Total members        ➡", "{totalmember}", "PRESENT.                 ➡", "{presentmember}", "ABSENT.                   ➡", "{absentmember}", "Note:- सभी भगतात्माओ से प्रार्थना है सेवा में बढ़-चढ़कर सहयोग करें।", "🙏 सत साहेब जी 🙏"};
+    String[] reportFormat = {"🙏बन्दीछोड सतगुरु रामपाल जी महाराज जी की जय हो🙏", "{area}", " सोशल मीडिया सेवा", "{date}", "की सेवा का विवरण", "जिन भगतात्माओ ने सेवा की है।", "Total members        ➡", "{totalmember}", "PRESENT.                 ➡", "{presentmember}", "ABSENT.                   ➡", "{absentmember}", "Note:- सभी भगतात्माओ से प्रार्थना है सेवा में बढ़-चढ़कर सहयोग करें।", "🙏 सत साहेब जी 🙏"};
 
-    class updatecontact extends Thread {
+    String[] reportFormat1Test = {"🙏बन्दीछोड सतगुरु रामपाल जी महाराज जी की जय हो🙏", "🌹 देवली+ संगम विहार सोशल मीडिया सेवा🌹", "{date}", "की सेवा का विवरण", "जिन भगतात्माओ ने सेवा की है।", "Total members        ➡", "{totalmember}", "PRESENT.                 ➡", "{presentmember}", "ABSENT.                   ➡", "{absentmember}", "Note:- सभी भगतात्माओ से प्रार्थना है सेवा में बढ़-चढ़कर सहयोग करें।", "🙏 सत साहेब जी 🙏"};
 
-        String sPref;
-        View view;
-
-        updatecontact(View view, String sPref) {
-            this.view = view;
-            this.sPref = sPref;
-        }
-
-        public void run() {
-            try {
-
-                SharedPreferences sharedPreferences = getSharedPreferences(sPref, MODE_PRIVATE);
-
-                vibrate(100);
-
-                String contactIdentifier=sharedPreferences.getString(sPref+"-identifier","SM");
-
-                displaysnakbar(view, contactIdentifier +" Tag Contact Updating....");
-
-                List[] list = getlistofbothgroup(contactIdentifier);
-                int foundContact=0;
-
-                if (sPref.equals("MainGroupSharedPref")) {
-                    print("main group button tapped");
-                    List<ContactModel> mainbhagtcontacts = list[0];
-                    foundContact=mainbhagtcontacts.size();
-                    putintoSharedPre(mainbhagtcontacts, sharedPreferences);
-                } else {
-                    List<ContactModel> learningbhagat = list[1];
-                    foundContact=learningbhagat.size();
-                    putintoSharedPre(learningbhagat, sharedPreferences);
-                }
-
-                String printMessage=foundContact+" Contacts Found";
-
-                displaysnakbar(view, printMessage);
-
-                vibrate(1500);
-                i--;
-
-            } catch (Exception e) {
-                Log.d(tag, "error" + e.toString());
-                displaysnakbar(view, "Something Went Wrong");
-                i--;
-            }
-
-        }
-
-    }
-
-    public class ContactModel {
-        public String id;
-        public String sno;
-        public String name;
-        public String mobileNumber;
-        public Bitmap photo;
-        public Uri photoURI;
-    }
-
-
-    public void updateConfig(View view) {
-        Log.d(tag, "display resume");
-
-        SharedPreferences sharedPreferences = getSharedPreferences(sPref, MODE_PRIVATE);
-
-        separator = sharedPreferences.getString(sPref + "-separator", "%");
-        String identifier1 = sharedPreferences.getString(sPref + "-identifier", "%");
-
-        Log.d(tag, "identifier : " + identifier);
-        Log.d(tag, "identifier1 : " + identifier1);
-
-        if (!identifier.equals(identifier1)) {
-            updatecontact(view);
-        }
-
-    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -153,24 +91,23 @@ public class Display extends AppCompatActivity {
 
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
-            String value = extras.getString("sPref");
-
+            sPref = extras.getString("sPref");
             prevActivity = extras.getString("prev");
-
-            Log.d("DisplayActiviy", value + " this is ");
-            sPref = value;
         }
 
-        View view = View.inflate(this, R.layout.activity_display, null);
+        SharedPreferences sharedPreferencesGroup = getSharedPreferences("group", MODE_PRIVATE);
 
-//        updatecontact(view);
+        sPref = sharedPreferencesGroup.getString("sPref", "MainGroupSharedPref");
+
+        Log.d(tag, "onCreate: called , spref : " + sPref);
+
+        view = getWindow().getDecorView().getRootView();
 
         sharedPreferences = getSharedPreferences(sPref, MODE_PRIVATE);
 
         totalmaingroupmember = sharedPreferences.getString("totalmaingroupmember", "0");
 
         setText(sharedPreferences);
-
 
         ImageView convertSnoToNameButton = (ImageView) findViewById(R.id.convertSnoToName);
         EditText count = (EditText) findViewById(R.id.count);
@@ -182,7 +119,9 @@ public class Display extends AppCompatActivity {
         ImageView getAbsentButton = (ImageView) findViewById(R.id.getabsent);
         TextView lastupdatetime = (TextView) findViewById(R.id.lastupdatetime);
         ImageView resizeButton = (ImageView) findViewById(R.id.resizeText);
-        ImageView pasteButton=(ImageView) findViewById(R.id.pasteButton);
+        ImageView pasteButton = (ImageView) findViewById(R.id.pasteButton);
+        ImageView updateContactsButton = (ImageView) findViewById(R.id.refreshbutton);
+
 
         displaydate();
 
@@ -255,15 +194,10 @@ public class Display extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                String[] reportFormat = {"🙏बन्दीछोड सतगुरु रामपाल जी महाराज जी की जय हो🙏", "🌹 अंबेडकर नगर सोशल मीडिया सेवा🌹", "{date}", "की सेवा का विवरण", "जिन भगतात्माओ ने सेवा की है।", "Total members        ➡", "{totalmember}", "PRESENT.                 ➡", "{presentmember}", "ABSENT.                   ➡", "{absentmember}", "Note:- सभी भगतात्माओ से प्रार्थना है सेवा में बढ़-चढ़कर सहयोग करें।", "🙏 सत साहेब जी 🙏"};
-//                String[] reportFormat = {"🙏बन्दीछोड सतगुरु रामपाल जी महाराज जी की जय हो🙏", "🌹 देवली+ संगम विहार सोशल मीडिया सेवा🌹", "{date}", "की सेवा का विवरण", "जिन भगतात्माओ ने सेवा की है।", "Total members        ➡", "{totalmember}", "PRESENT.                 ➡", "{presentmember}", "ABSENT.                   ➡", "{absentmember}", "Note:- सभी भगतात्माओ से प्रार्थना है सेवा में बढ़-चढ़कर सहयोग करें।", "🙏 सत साहेब जी 🙏"};
-
-                String[] reportFormat1 = {"🙏बन्दीछोड सतगुरु रामपाल जी महाराज जी की जय हो🙏", "🌹 देवली+ संगम विहार सोशल मीडिया सेवा🌹", "{date}", "की सेवा का विवरण", "जिन भगतात्माओ ने सेवा की है।", "Total members        ➡", "{totalmember}", "PRESENT.                 ➡", "{presentmember}", "ABSENT.                   ➡", "{absentmember}", "Note:- सभी भगतात्माओ से प्रार्थना है सेवा में बढ़-चढ़कर सहयोग करें।", "🙏 सत साहेब जी 🙏"};
-
                 String reportFormatString = sharedPreferences.getString("reportFormat", "null");
 
-                if(!reportFormatString.equals("null"))
-                    reportFormat1=reportFormatString.split("\n");
+                if (!reportFormatString.equals("null"))
+                    reportFormat1Test = reportFormatString.split("\n");
 
                 int[] gap = {0, 1, 2, 1, 1, 2, 1, 1};
 
@@ -282,39 +216,59 @@ public class Display extends AppCompatActivity {
                     groupcounting[2] = totallearninggroupabsentmember;
                 }
 
-//                String res=getreport(reportFormat1,groupcounting);
+                Log.d(tag, "area : " + area);
 
-                for (String x : reportFormat) {
-                    if (x == "{date}") {
-                        resultstr += "*" + todaydate + "*";
-                    } else if (x.equals("{totalmember}")) {
-                        String emoji = getemoji(groupcounting[0]);
-                        resultstr += "*" + emoji + "*" + "\n" + "\n";
-                    } else if (x.equals("{presentmember}")) {
-                        String emoji = getemoji(groupcounting[1]);
-                        resultstr += "*" + emoji + "*" + "\n" + "\n";
-                    } else if (x == "{absentmember}") {
-                        String emoji = getemoji(groupcounting[2]);
-                        resultstr += "*" + emoji + "*" + "\n" + "\n" + "\n";
-                    } else {
-                        if (i == 1 && Switchbuttonstate)
-                            x = "🌹 देवली + संगम विहार सोशल मीडिया लर्निंग ग्रुप सेवा🌹";
-                        resultstr += " *" + x + "*";
 
-                        if (j == 5 || j == 7 || j == 9) {
-                            resultstr += " ";
-                        } else if (i < gap.length) {
-                            int gapline = gap[i];
-                            resultstr += "\n";
-                            while (gapline > 0) {
-                                resultstr += "\n";
-                                gapline--;
-                            }
-                            i++;
+                for (int k = 0; k < reportFormat.length; k++) {
+                    String x = reportFormat[k];
+
+                    switch (x) {
+                        case "{date}":
+                            resultstr += "*" + todaydate + "*";
+                            break;
+                        case "{totalmember}": {
+                            String emoji = getemoji(groupcounting[0]);
+                            resultstr += "*" + emoji + "*" + "\n" + "\n";
+                            break;
                         }
+                        case "{presentmember}": {
+                            String emoji = getemoji(groupcounting[1]);
+                            resultstr += "*" + emoji + "*" + "\n" + "\n";
+                            break;
+                        }
+                        case "{absentmember}": {
+                            String emoji = getemoji(groupcounting[2]);
+                            resultstr += "*" + emoji + "*" + "\n" + "\n" + "\n";
+                            break;
+                        }
+                        case "{area}": {
+                            Log.d(tag, "hit : " + reportFormat[k + 1]);
+                            resultstr += "*🌹" + area + "" + reportFormat[k+1].toString() + "🌹*" + "\n" + "\n";
+                            k++;
+                            break;
+                        }
+                        default:
+                            if (i == 1 && Switchbuttonstate)
+                                x = "🌹 देवली + संगम विहार सोशल मीडिया लर्निंग ग्रुप सेवा🌹";
+                            resultstr += " *" + x + "*";
+
+                            if (j == 5 || j == 7 || j == 9) {
+                                resultstr += " ";
+                            } else if (i < gap.length) {
+                                int gapline = gap[i];
+                                resultstr += "\n";
+                                while (gapline > 0) {
+                                    resultstr += "\n";
+                                    gapline--;
+                                }
+                                i++;
+                            }
+                            break;
                     }
                     j++;
                 }
+
+                Log.d(tag,"report : "+resultstr);
 
                 copyingdata(resultstr);
                 vibrate(250);
@@ -323,22 +277,19 @@ public class Display extends AppCompatActivity {
         });
 
         count.addTextChangedListener(new TextWatcher() {
-
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
             }
 
             @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
             }
 
             @Override
             public void afterTextChanged(Editable s) {
                 String updatedcount = count.getText().toString();
-
-                Log.d(tag, "textchanged" + updatedcount);
 
                 SharedPreferences.Editor myEdit = sharedPreferences.edit();
                 totalmaingroupmember = updatedcount;
@@ -356,17 +307,17 @@ public class Display extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                String currentInputString=countstrings.getText().toString();
+                String currentInputString = countstrings.getText().toString();
 
                 ClipboardManager myClipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
 
-                ClipData clipData=myClipboard.getPrimaryClip();
+                ClipData clipData = myClipboard.getPrimaryClip();
 
-                String copiedText=clipData.getItemAt(0).coerceToText(getApplicationContext()).toString();
+                String copiedText = clipData.getItemAt(0).coerceToText(getApplicationContext()).toString();
 
-                currentInputString+=copiedText;
+                currentInputString += copiedText;
 
-                Log.d(tag,copiedText);
+                Log.d(tag, copiedText);
 
                 countstrings.setText(currentInputString);
 
@@ -406,8 +357,7 @@ public class Display extends AppCompatActivity {
                     for (String x : lines) {
                         int c = Integer.parseInt(x);
 
-                        if (c <= total)
-                            arr[c - 1] = 1;
+                        if (c <= total) arr[c - 1] = 1;
                         else {
                             Toast.makeText(Display.this, "Number greater than total", Toast.LENGTH_SHORT).show();
                             vibrate(500);
@@ -444,7 +394,6 @@ public class Display extends AppCompatActivity {
                     countabsent.setText(absentbhagt + "");
 
                     InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
-
 
 
                     if (imm.isAcceptingText()) {
@@ -501,31 +450,185 @@ public class Display extends AppCompatActivity {
             }
         });
 
+        updateContactsButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                updatecontact();
+            }
+        });
+
     }
 
     public void onResume() {
         super.onResume();
-        Log.d(tag, "onResume: called");
+        view = getWindow().getDecorView().getRootView();
+
+        SharedPreferences sharedPreferencesGroup = getSharedPreferences("group", MODE_PRIVATE);
+
+        sPref = sharedPreferencesGroup.getString("sPref", "MainGroupSharedPref");
+
+        Log.d(tag, "onResume: called , spref : " + sPref);
         setText(sharedPreferences);
     }
 
     public void onStart() {
         super.onStart();
-        Log.d(tag, "onStart: called");
+        view = getWindow().getDecorView().getRootView();
+
+        SharedPreferences sharedPreferencesGroup = getSharedPreferences("group", MODE_PRIVATE);
+
+        sPref = sharedPreferencesGroup.getString("sPref", "MainGroupSharedPref");
+
+        Log.d(tag, "onStart: called , spref : " + sPref);
         setText(sharedPreferences);
     }
 
+    class updatecontact extends Thread {
+
+        String sPref;
+        View view;
+
+        updatecontact(View view, String sPref) {
+            this.view = view;
+            this.sPref = sPref;
+        }
+
+        public void run() {
+            try {
+
+                SharedPreferences sharedPreferences = getSharedPreferences(sPref, MODE_PRIVATE);
+                String contactIdentifier = sharedPreferences.getString(sPref + "-identifier", "SM");
+
+                vibrate(100);
+                displaysnakbar(view, contactIdentifier + " Tag Contact Updating....");
+
+
+                List[] list = getlistofbothgroup(contactIdentifier);
+                int foundContact = 0;
+
+                Log.d(tag, "sPref : " + sPref);
+
+
+                if (sPref.equals("MainGroupSharedPref")) {
+                    List<ContactModel> mainbhagtcontacts = list[0];
+                    foundContact = mainbhagtcontacts.size();
+                    putintoSharedPre(mainbhagtcontacts, sharedPreferences);
+                } else {
+                    List<ContactModel> learningbhagat = list[1];
+                    list[0] = list[1];
+                    foundContact = learningbhagat.size();
+                    putintoSharedPre(learningbhagat, sharedPreferences);
+                }
+
+                String printMessage = foundContact + " Contacts Found with " + contactIdentifier;
+
+                displaysnakbar(view, printMessage);
+
+                vibrate(1500);
+                i--;
+
+            } catch (Exception e) {
+                Log.d(tag, "error here : " + e.toString());
+                displaysnakbar(view, "Something Went Wrong");
+                i--;
+            }
+
+        }
+
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode == REQ_CODE) {
+            if (grantResults.length > 0) {
+                Log.d(tag, "len : " + grantResults.length);
+                int res = grantResults[0];
+                boolean checkloc = res == PackageManager.PERMISSION_GRANTED;
+                if (checkloc) {
+                    Log.d(tag, "p grattedf : " + res);
+                    startContactUpdating();
+                } else {
+
+                }
+            }
+
+        } else {
+            Log.d(tag, "p no");
+        }
+    }
+
+    public boolean checkPermissionGranted() {
+
+        Log.d(tag, "dasdas");
+        int result = ActivityCompat.checkSelfPermission(this, READ_CONTACTS);
+
+        Log.d(tag, "result : " + result);
+        if (result == PackageManager.PERMISSION_GRANTED) {
+            Log.d(tag, "permission granted ");
+            return true;
+        } else {
+            Log.d(tag, "permission not granted ");
+            return false;
+        }
+    }
+
+    public void updatecontact() {
+
+        Log.d(tag, "updatecontact.......");
+
+        try {
+            Log.d(tag, "updatecontact");
+            if (checkPermissionGranted()) {
+                Log.d(tag, "starts updating");
+                startContactUpdating();
+            } else {
+                Log.d(tag, "it is here");
+                String[] permissions = {READ_CONTACTS};
+                Random rand = new Random();
+                REQ_CODE = rand.nextInt(1000);
+                Log.d(tag, REQ_CODE + "");
+
+                ActivityCompat.requestPermissions(Display.this, permissions, REQ_CODE);
+            }
+        } catch (Exception e) {
+            Log.d(tag, "error is here" + e.toString());
+
+        }
+
+    }
+
+    public void startContactUpdating() {
+        if (i == 0) {
+            i++;
+            Log.d(tag, "startContactUpdating");
+            updatecontactobj = new updatecontact(view, sPref);
+            updatecontactobj.start();
+        } else {
+            Log.d(tag, "i not zero");
+        }
+    }
+
+    public void updateConfig(View view) {
+        Log.d(tag, "display resume");
+
+        SharedPreferences sharedPreferences = getSharedPreferences(sPref, MODE_PRIVATE);
+
+        separator = sharedPreferences.getString(sPref + "-separator", "%");
+        String identifier1 = sharedPreferences.getString(sPref + "-identifier", "%");
+
+        Log.d(tag, "identifier : " + identifier);
+        Log.d(tag, "identifier1 : " + identifier1);
+
+        if (!identifier.equals(identifier1)) {
+            updatecontact();
+        }
+
+    }
+
     public void displaysnakbar(View view, String data) {
-        Snackbar snk = Snackbar.make(view, data, Snackbar.LENGTH_SHORT)
-                .setAction("Action", null);
-//        if(isContactTobeDisplaying) {
-//            snk.setAction("View Contacts button", new OnClickListener() {
-//                @Override
-//                public void onClick(View v) {
-//
-//                }
-//            });
-//    }
+        Snackbar snk = Snackbar.make(view, data, Snackbar.LENGTH_SHORT).setAction("Action", null);
 
         View sbView = snk.getView();
         snk.show();
@@ -575,7 +678,7 @@ public class Display extends AppCompatActivity {
 
         for (ContactModel contact : bhagtcontact) {
 
-            myEdit.putString("" + contact.sno, contact.name.toString());
+            myEdit.putString("" + contact.serialNumber, contact.name.toString());
 
         }
         myEdit.commit();
@@ -616,57 +719,17 @@ public class Display extends AppCompatActivity {
 
     public List[] getlistofbothgroup(String contactIdentifier) {
 
-        try {
-            List<ContactModel> contacts = getContacts(this);
+        List[] contactsList = getContacts(this, contactIdentifier);
 
-            List<ContactModel> bhagatcontactslist = new ArrayList<>();
-            HashMap<String, Integer> mainmap = new HashMap<>();
-            List<ContactModel> learningcontactslist = new ArrayList<>();
+        return contactsList;
 
-            List[] list = new List[2];
-
-            for (ContactModel x : contacts) {
-                String name = x.name;
-                try {
-                    if (name.length() <= 2) continue;
-                    String end = name.substring(name.length() - 2);
-
-                    if (Character.isDigit(name.charAt(0)) && end.equals(contactIdentifier)) {
-                        if (isbelongtolearninggroup(name)) {
-                            String[] arr = name.split(" .");
-                            x.sno = "" + getsno(arr[0]);
-                            learningcontactslist.add(x);
-                        } else {
-                            if (!mainmap.containsKey(x.mobileNumber)) {
-                                String[] arr = name.split(" .");
-                                x.sno = "" + getsno(arr[0]);
-                                bhagatcontactslist.add(x);
-                                mainmap.put(x.mobileNumber, 1);
-                            }
-
-                        }
-                    }
-
-                } catch (Exception e) {
-                    Toast.makeText(this, "Error occur Clicked", Toast.LENGTH_SHORT).show();
-                    Log.d(tag, "string split error ocoor");
-                }
-            }
-            list[0] = new ArrayList<>(bhagatcontactslist);
-            list[1] = new ArrayList<>(learningcontactslist);
-
-            return list;
-        } catch (Exception e) {
-            throw e;
-        }
     }
 
-    public static int getsno(String str) {
+    public static int getSerialNumber(String str) {
 
         String ans = "";
 
         for (int i = 0; i < str.length(); i++) {
-
             char c = str.charAt(i);
 
             if (c == '.') return Integer.parseInt(ans);
@@ -712,20 +775,22 @@ public class Display extends AppCompatActivity {
 
             String learninggrouptag = name.charAt(i) + "" + name.charAt(i + 1);
 
-//            Log.d(tag+"11",learninggrouptag);
-
             if (learninggrouptag.equals("S2")) {
-//                Log.d(tag+"11","learning group member found");
                 return true;
             }
         }
         return false;
     }
 
-    public List<ContactModel> getContacts(Context ctx) {
+    public List[] getContacts(Context ctx, String contactIdentifier) {
         try {
 
-            List<ContactModel> list = new ArrayList<>();
+            List<ContactModel> contactList = new ArrayList<>();
+            HashMap<String, Integer> mainmap = new HashMap<>();
+            List<ContactModel> contactListLearn = new ArrayList<>();
+
+            List[] list = new List[2];
+
             ContentResolver contentResolver = ctx.getContentResolver();
             Cursor cursor = contentResolver.query(ContactsContract.Contacts.CONTENT_URI, null, null, null, null);
 
@@ -733,41 +798,50 @@ public class Display extends AppCompatActivity {
                 while (cursor.moveToNext()) {
                     String id = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
                     if (cursor.getInt(cursor.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER)) > 0) {
-                        Cursor cursorInfo = contentResolver.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null,
-                                ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ?", new String[]{id}, null);
-                        InputStream inputStream = ContactsContract.Contacts.openContactPhotoInputStream(ctx.getContentResolver(),
-                                ContentUris.withAppendedId(ContactsContract.Contacts.CONTENT_URI, new Long(id)));
+                        Cursor cursorInfo = contentResolver.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ?", new String[]{id}, null);
 
-                        Uri person = ContentUris.withAppendedId(ContactsContract.Contacts.CONTENT_URI, new Long(id));
-                        Uri pURI = Uri.withAppendedPath(person, ContactsContract.Contacts.Photo.CONTENT_DIRECTORY);
-
-                        Bitmap photo = null;
-                        if (inputStream != null) {
-                            photo = BitmapFactory.decodeStream(inputStream);
-                        }
                         while (cursorInfo.moveToNext()) {
-                            ContactModel info = new ContactModel();
-                            info.id = id;
-                            info.sno = "";
-                            info.name = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
-                            info.mobileNumber = cursorInfo.getString(cursorInfo.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-                            info.photo = photo;
-                            info.photoURI = pURI;
-                            list.add(info);
-                        }
+                            String name = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
+                            String mobileNumber = cursorInfo.getString(cursorInfo.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
 
+                            if (name.length() <= 2) continue;
+
+                            String nameEndString = name.substring(name.length() - 2);
+
+                            if (Character.isDigit(name.charAt(0)) && nameEndString.equals(contactIdentifier)) {
+                                ContactModel newContact = new ContactModel();
+                                newContact.id = id;
+                                newContact.serialNumber = "";
+                                newContact.name = name;
+                                newContact.mobileNumber = mobileNumber;
+
+                                if (isbelongtolearninggroup(name)) {
+                                    String[] arr = name.split(" .");
+                                    newContact.serialNumber = "" + getSerialNumber(arr[0]);
+                                    contactListLearn.add(newContact);
+                                } else {
+                                    if (!mainmap.containsKey(newContact.mobileNumber)) {
+                                        String[] arr = name.split(" .");
+                                        newContact.serialNumber = "" + getSerialNumber(arr[0]);
+                                        contactList.add(newContact);
+                                        mainmap.put(newContact.mobileNumber, 1);
+                                    }
+                                }
+                            }
+                        }
                         cursorInfo.close();
                     }
                 }
                 cursor.close();
             }
+            list[0] = new ArrayList<>(contactList);
+            list[1] = new ArrayList<>(contactListLearn);
 
             return list;
 
         } catch (SecurityException e) {
             print("e : ", e.toString());
             return null;
-//            throw e;
         }
     }
 
@@ -784,22 +858,9 @@ public class Display extends AppCompatActivity {
         t1.show();
     }
 
-    public void updatecontact(View v) {
-
-        Log.d(tag, "updating contact");
-
-        if (i == 0) {
-            i++;
-            updatecontact updatecontactobj = new updatecontact(v, sPref);
-
-            updatecontactobj.start();
-        }
-
-    }
-
     public void setText(SharedPreferences shPref) {
 
-        EditText count=(EditText) findViewById(R.id.count);
+        EditText count = (EditText) findViewById(R.id.count);
         EditText countstrings = (EditText) findViewById(R.id.inputHashText);
         TextView lastupdatetime = (TextView) findViewById(R.id.lastupdatetime);
 
@@ -810,6 +871,7 @@ public class Display extends AppCompatActivity {
         countstrings.setText(inputstring);
         identifier = shPref.getString(sPref + "-identifier", "SM");
         separator = shPref.getString(sPref + "-separator", "%");
+        area = shPref.getString(sPref + "-area", "देवली+ संगम विहार");
 
         lastupdatetime.setText(lastupdatedtime.toString());
 
@@ -823,6 +885,13 @@ public class Display extends AppCompatActivity {
     public void doConfiguration(View v) {
         Intent i = new Intent(this, groupConfig.class);
         i.putExtra("sPref", sPref);
+        String reportFormatarr = "";
+        for (String reportLine : reportFormat) {
+            reportFormatarr += reportLine;
+            reportFormatarr += "#";
+        }
+
+        i.putExtra("reportFormat", reportFormatarr);
         startActivity(i);
     }
 
@@ -833,8 +902,8 @@ public class Display extends AppCompatActivity {
         startActivity(i);
     }
 
-    public void getFormat(String reportFormat[],String []groupcounting){
-        String resultstr="";
+    public void getFormat(String reportFormat[], String[] groupcounting) {
+        String resultstr = "";
 
         for (String line : reportFormat) {
             if (line == "{date}") {
@@ -849,9 +918,9 @@ public class Display extends AppCompatActivity {
                 String emoji = getemoji(groupcounting[2]);
                 resultstr += "*" + emoji + "*";
             } else {
-                if(line.isEmpty()) resultstr+="\n";
+                if (line.isEmpty()) resultstr += "\n";
             }
-            resultstr+="\n";
+            resultstr += "\n";
         }
 
     }

@@ -42,7 +42,6 @@
         android:layout_height="76dp"
         android:layout_margin="4dp"
         android:contentDescription="@null"
-        android:onClick="updatecontact"
         android:scaleType="fitCenter"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

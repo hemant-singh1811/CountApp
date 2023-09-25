@@ -11,6 +11,7 @@ import android.util.Log;
 
 import android.view.View;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.counting.CountApp.R;
@@ -30,13 +31,40 @@ public class groupConfig extends AppCompatActivity {
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
             sPref = extras.getString("sPref");
+            String reportFormat=extras.getString("reportFormat");
+            Log.d(tag, "onCreate: reportFormat : "+reportFormat);
+            this.reportFormat=reportFormat.split("#");
+
             sharedPreferences=getSharedPreferences(sPref,MODE_PRIVATE);
             setText(sharedPreferences);
         }
 
         setReportFormat(reportFormat);
 
-        EditText reportFormatTag = (EditText) findViewById(R.id.reportFormat);
+        TextView reportFormatTag = (TextView) findViewById(R.id.reportFormat);
+
+        EditText areaTag = (EditText) findViewById(R.id.area);
+
+        areaTag.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+                String area=areaTag.getText().toString();
+
+                setArea(area);
+
+            }
+        });
 
         reportFormatTag.addTextChangedListener(new TextWatcher(){
 
@@ -82,6 +110,7 @@ public class groupConfig extends AppCompatActivity {
 
         EditText identifier = (EditText) findViewById(R.id.identifier);
         EditText separator = (EditText) findViewById(R.id.separator);
+        EditText areaTag = (EditText) findViewById(R.id.area);
 
         SharedPreferences.Editor myEdit = sharedPreferences.edit();
         myEdit.putString(sPref+"-identifier", identifier.getText().toString());
@@ -91,10 +120,22 @@ public class groupConfig extends AppCompatActivity {
         Toast t1=Toast.makeText(getApplicationContext(),"Setting are Saved", Toast.LENGTH_SHORT);
         t1.show();
 
+        String area=areaTag.getText().toString();
+        setArea(area);
+
         Intent i = new Intent(getApplicationContext(), Display.class);
         i.putExtra("prev", "groupConfig");
         startActivity(i);
 
+    }
+
+    public void setArea(String area){
+        SharedPreferences.Editor myEdit = sharedPreferences.edit();
+        myEdit.putString(sPref+"-area", area);
+        myEdit.commit();
+
+        Toast t1=Toast.makeText(getApplicationContext(),"Updated", Toast.LENGTH_SHORT);
+        t1.show();
     }
 
     public void setText(SharedPreferences shPref){
@@ -114,13 +155,16 @@ public class groupConfig extends AppCompatActivity {
 
 //        String reportFormat = sharedPreferences.getString("reportFormat", "format");
 
-        EditText reportFormatTag = (EditText) findViewById(R.id.reportFormat);
+        TextView reportFormatTag = (TextView) findViewById(R.id.reportFormat);
 
         String resultantReportFormatText="";
 
         for (String line:reportFormat){
+
             resultantReportFormatText+=line;
             resultantReportFormatText+="\n";
+
+
         }
 
         reportFormatTag.setText(resultantReportFormatText);
