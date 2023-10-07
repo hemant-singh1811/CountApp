@@ -92,7 +92,7 @@ public class groupConfig extends AppCompatActivity {
                 }
 
                 SharedPreferences.Editor myEdit = sharedPreferences.edit();
-                myEdit.putString("reportFormat", updatedReportFormat);
+                myEdit.putString(Helper.ReportFormat, updatedReportFormat);
                 myEdit.commit();
 
                 Toast t1=Toast.makeText(getApplicationContext(),"Updated", Toast.LENGTH_SHORT);
@@ -113,8 +113,8 @@ public class groupConfig extends AppCompatActivity {
         EditText areaTag = (EditText) findViewById(R.id.area);
 
         SharedPreferences.Editor myEdit = sharedPreferences.edit();
-        myEdit.putString(sPref+"-identifier", identifier.getText().toString());
-        myEdit.putString(sPref+"-separator", separator.getText().toString());
+        myEdit.putString(Helper.Identifier, identifier.getText().toString());
+        myEdit.putString(Helper.Separator, separator.getText().toString());
         myEdit.commit();
 
         Toast t1=Toast.makeText(getApplicationContext(),"Setting are Saved", Toast.LENGTH_SHORT);
@@ -131,7 +131,7 @@ public class groupConfig extends AppCompatActivity {
 
     public void setArea(String area){
         SharedPreferences.Editor myEdit = sharedPreferences.edit();
-        myEdit.putString(sPref+"-area", area);
+        myEdit.putString(Helper.Area, area);
         myEdit.commit();
 
         Toast t1=Toast.makeText(getApplicationContext(),"Updated", Toast.LENGTH_SHORT);
@@ -143,8 +143,8 @@ public class groupConfig extends AppCompatActivity {
         EditText identifier = (EditText) findViewById(R.id.identifier);
         EditText separator = (EditText) findViewById(R.id.separator);
 
-        String identifierStr= shPref.getString(sPref+"-identifier", "SM");
-        String separatorStr= shPref.getString(sPref+"-separator", "%");
+        String identifierStr= shPref.getString(Helper.Identifier, "SM");
+        String separatorStr= shPref.getString(Helper.Separator, "%");
 
         identifier.setText(identifierStr);
         separator.setText(separatorStr);
@@ -152,21 +152,14 @@ public class groupConfig extends AppCompatActivity {
     }
 
     public void setReportFormat(String[] reportFormat){
-
-//        String reportFormat = sharedPreferences.getString("reportFormat", "format");
-
         TextView reportFormatTag = (TextView) findViewById(R.id.reportFormat);
 
-        String resultantReportFormatText="";
+        StringBuilder resultantReportFormatText= new StringBuilder();
 
         for (String line:reportFormat){
-
-            resultantReportFormatText+=line;
-            resultantReportFormatText+="\n";
-
-
+            resultantReportFormatText.append(line);
+            resultantReportFormatText.append("\n");
         }
-
-        reportFormatTag.setText(resultantReportFormatText);
+        reportFormatTag.setText(resultantReportFormatText.toString());
     }
 }

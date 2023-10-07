@@ -68,7 +68,7 @@ public class resizedText extends AppCompatActivity {
                 String updatedcount=inputStringView.getText().toString();
 
                 SharedPreferences.Editor myEdit = sharedPreferences.edit();
-                myEdit.putString("inputstring", updatedcount);
+                myEdit.putString( Helper.InputHashText, updatedcount);
                 myEdit.commit();
 
                 Toast t1=Toast.makeText(getApplicationContext(),"Updated", Toast.LENGTH_SHORT);

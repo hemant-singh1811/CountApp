@@ -1,0 +1,51 @@
+Testing
+
+getReport-Button() ->  reportFormat -> array that store all things
+
+
+
+
+setText() -> it set the value from sharedPrefrences to UI and State
+fail when :{
+spref is null
+
+}
+
+
+getAbsentButton() ->  absent header & absent member list
+
+
+formatstr() -> it add 0 to prefix, ex- it convert 5 to 05
+
+
+SharedPrefrences store -> {
+
+    inputstring:"", -> inputHashText
+    mainlastupdate:"", -> lastUpdatedTime
+    identifier:"",
+    separator:"",
+    area:"",
+    totalmaingroupmember:"", -> totalMember
+    sno: // to fetch contacts
+}
+
+
+
+group:{
+ MainGroupSharedPref:{
+
+ },
+ LearningGroupSharedPref:{
+
+ }
+}
+
+
+
+        // name of sharedPreferneces
+        // 1- maingroup ("MainGroupSharedPref")
+        // 2- learning group ("LearningGroupSharedPref")
+        // 3- count -> have 2 count of both group (main and learning)
+        //      ->key: ("totalmaingroupmember") , ("totallearninggroupmember")
+        // 4- lastupdate time -> ("lastupdate")
+        //      ->key :  ("mainlastupdate")  ("learninglastupdate")

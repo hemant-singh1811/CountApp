@@ -6,24 +6,19 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
-import android.app.Activity;
+import android.annotation.SuppressLint;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.ContentResolver;
-import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.net.Uri;
 import android.os.Build;
 
-import com.counting.CountApp.R;
 import com.google.android.material.snackbar.Snackbar;
 
 import android.os.VibrationEffect;
@@ -32,7 +27,6 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
-
 import android.view.View.OnClickListener;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
@@ -40,7 +34,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -54,20 +47,18 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Random;
 
+import com.counting.CountApp.Helper.*;
+
 public class Display extends AppCompatActivity {
 
     int i = 0;
     String sPref = "";
-    String totalmaingroupmember = "48";
-    String totalmaingrouppresentmember = "0";
-    String totalmaingroupabsentmember = "0";
-    String totallearninggroupmember = "17";
-    String totalmainlearningpresentmember = "0";
-    String totallearninggroupabsentmember = "0";
+    String totalMember = "48";
+    String presentMember = "0";
+    String absentMember = "0";
     String identifier = "";
     String separator = "";
-    HashSet<String> absentlist = new HashSet<>();
-    String todaydate = "";
+    String[] absentMemberList = new String[0];
     boolean Switchbuttonstate = false;
     String prevActivity = "";
     String tag = "DisplayActivityTag";
@@ -75,13 +66,16 @@ public class Display extends AppCompatActivity {
     int REQ_CODE = 200;
     View view = null;
     String area = "";
-    updatecontact updatecontactobj;
+    UpdateContacts updatecontactobj;
+    String[] absentReportFormat = {"इन सेवादारों ने आज सेवा नही की हैं", "date"};
+
     //        String[] reportFormat = {"🙏बन्दीछोड सतगुरु रामपाल जी महाराज जी की जय हो🙏", "🌹 अंबेडकर नगर सोशल मीडिया सेवा🌹", "{date}", "की सेवा का विवरण", "जिन भगतात्माओ ने सेवा की है।", "Total members        ➡", "{totalmember}", "PRESENT.                 ➡", "{presentmember}", "ABSENT.                   ➡", "{absentmember}", "Note:- सभी भगतात्माओ से प्रार्थना है सेवा में बढ़-चढ़कर सहयोग करें।", "🙏 सत साहेब जी 🙏"};
-    String[] reportFormat = {"🙏बन्दीछोड सतगुरु रामपाल जी महाराज जी की जय हो🙏", "{area}", " सोशल मीडिया सेवा", "{date}", "की सेवा का विवरण", "जिन भगतात्माओ ने सेवा की है।", "Total members        ➡", "{totalmember}", "PRESENT.                 ➡", "{presentmember}", "ABSENT.                   ➡", "{absentmember}", "Note:- सभी भगतात्माओ से प्रार्थना है सेवा में बढ़-चढ़कर सहयोग करें।", "🙏 सत साहेब जी 🙏"};
+    String[] reportFormat = {"🙏बन्दीछोड सतगुरु रामपाल जी महाराज जी की जय हो🙏", "{area}", " सोशल मीडिया सेवा", "{date}", "की सेवा का विवरण", "जिन भगतात्माओ ने सेवा की है।", "Total members        ➡", "{totalMember}", "PRESENT.                 ➡", "{presentMember}", "ABSENT.                   ➡", "{absentMember}", "Note:- सभी भगतात्माओ से प्रार्थना है सेवा में बढ़-चढ़कर सहयोग करें।", "🙏 सत साहेब जी 🙏"};
 
-    String[] reportFormat1Test = {"🙏बन्दीछोड सतगुरु रामपाल जी महाराज जी की जय हो🙏", "🌹 देवली+ संगम विहार सोशल मीडिया सेवा🌹", "{date}", "की सेवा का विवरण", "जिन भगतात्माओ ने सेवा की है।", "Total members        ➡", "{totalmember}", "PRESENT.                 ➡", "{presentmember}", "ABSENT.                   ➡", "{absentmember}", "Note:- सभी भगतात्माओ से प्रार्थना है सेवा में बढ़-चढ़कर सहयोग करें।", "🙏 सत साहेब जी 🙏"};
+    String[] reportFormat1Test = {"🙏बन्दीछोड सतगुरु रामपाल जी महाराज जी की जय हो🙏", "🌹 देवली+ संगम विहार सोशल मीडिया सेवा🌹", "{date}", "की सेवा का विवरण", "जिन भगतात्माओ ने सेवा की है।", "Total members        ➡", "{totalMember}", "PRESENT.                 ➡", "{presentMember}", "ABSENT.                   ➡", "{absentMember}", "Note:- सभी भगतात्माओ से प्रार्थना है सेवा में बढ़-चढ़कर सहयोग करें।", "🙏 सत साहेब जी 🙏"};
 
 
+    @SuppressLint("SourceLockedOrientationActivity")
     @Override
     public void onCreate(Bundle savedInstanceState) {
 
@@ -95,19 +89,9 @@ public class Display extends AppCompatActivity {
             prevActivity = extras.getString("prev");
         }
 
-        SharedPreferences sharedPreferencesGroup = getSharedPreferences("group", MODE_PRIVATE);
-
-        sPref = sharedPreferencesGroup.getString("sPref", "MainGroupSharedPref");
-
-        Log.d(tag, "onCreate: called , spref : " + sPref);
+        setSharedPreferences();
 
         view = getWindow().getDecorView().getRootView();
-
-        sharedPreferences = getSharedPreferences(sPref, MODE_PRIVATE);
-
-        totalmaingroupmember = sharedPreferences.getString("totalmaingroupmember", "0");
-
-        setText(sharedPreferences);
 
         ImageView convertSnoToNameButton = (ImageView) findViewById(R.id.convertSnoToName);
         EditText count = (EditText) findViewById(R.id.count);
@@ -122,18 +106,13 @@ public class Display extends AppCompatActivity {
         ImageView pasteButton = (ImageView) findViewById(R.id.pasteButton);
         ImageView updateContactsButton = (ImageView) findViewById(R.id.refreshbutton);
 
-
-        displaydate();
-
         if (prevActivity != null) {
             updateConfig(view);
         }
 
         resizeButton.setOnClickListener(new OnClickListener() {
-
             @Override
             public void onClick(View view) {
-
                 String inputStr = countstrings.getText().toString();
                 resizedText(inputStr);
                 vibrate(250);
@@ -143,49 +122,37 @@ public class Display extends AppCompatActivity {
         getAbsentButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                String[] str = {"इन सेवादारों ने आज सेवा नही की हैं", "date"};
                 int[] gap = {0};
-                String resultstr = "";
                 int i = 0;
+                StringBuilder resultantReport = new StringBuilder();
                 String alert = "🚨";
-                for (String x : str) {
-                    if (x == "date") {
-                        resultstr += "*(" + todaydate + ")" + alert + "*";
+
+                for (String reportLine : absentReportFormat) {
+                    if (reportLine.equals("date")) {
+                        resultantReport.append("*(").append(Helper.getDate()).append(")").append(alert).append("*");
                     } else {
-                        resultstr += " *" + x + "*";
+                        resultantReport.append(" *").append(reportLine).append("*");
 
                         if (i < gap.length) {
-                            int gapline = gap[i];
-                            resultstr += "\n";
-                            while (gapline-- > 0) {
-                                resultstr += "\n";
+                            int gapLine = gap[i];
+                            resultantReport.append("\n");
+                            while (gapLine-- > 0) {
+                                resultantReport.append("\n");
                             }
                         }
                         i++;
                     }
                 }
+                resultantReport.append("\n \n \n");
 
-                resultstr += "\n \n \n";
+                for(int j=1;j<absentMemberList.length;j++){
+                    String trimmedName = trimstr(absentMemberList[j]);
 
-                int len = absentlist.size();
-                Log.d(tag, "len : " + len + "");
-
-                int count = 0;
-                if (len != 0) {
-                    for (String x : absentlist) {
-                        count++;
-                        print("name", x);
-                        resultstr += "" + count + ".";
-                        String trimmedstr = trimstr(x);
-                        print("name", trimmedstr);
-                        Log.d(tag, "trim " + trimmedstr);
-
-                        resultstr += trimmedstr;
-                        resultstr += " \n" + "\n";
-                    }
+                    resultantReport.append("").append(j).append(".")
+                            .append(trimmedName).append("\n \n");
                 }
 
-                copyingdata(resultstr);
+                copyData(resultantReport.toString());
                 vibrate(250);
             }
         });
@@ -193,72 +160,57 @@ public class Display extends AppCompatActivity {
         getReportButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                String reportFormatString = sharedPreferences.getString("reportFormat", "null");
+                String reportFormatString = sharedPreferences.getString(Helper.ReportFormat, "null");
 
                 if (!reportFormatString.equals("null"))
                     reportFormat1Test = reportFormatString.split("\n");
 
                 int[] gap = {0, 1, 2, 1, 1, 2, 1, 1};
 
-                String resultstr = "";
+                StringBuilder resultantReport = new StringBuilder();
                 int i = 0;
                 int j = 0;
-                String[] groupcounting = new String[3];
 
-                if (!Switchbuttonstate) {
-                    groupcounting[0] = totalmaingroupmember;
-                    groupcounting[1] = totalmaingrouppresentmember;
-                    groupcounting[2] = totalmaingroupabsentmember;
-                } else {
-                    groupcounting[0] = totallearninggroupmember;
-                    groupcounting[1] = totalmainlearningpresentmember;
-                    groupcounting[2] = totallearninggroupabsentmember;
-                }
+                for (int line = 0; line < reportFormat.length; line++) {
+                    String reportLine = reportFormat[line];
 
-                Log.d(tag, "area : " + area);
-
-
-                for (int k = 0; k < reportFormat.length; k++) {
-                    String x = reportFormat[k];
-
-                    switch (x) {
+                    switch (reportLine) {
                         case "{date}":
-                            resultstr += "*" + todaydate + "*";
+                            resultantReport.append("*").append(Helper.getDate()).append("*");
                             break;
-                        case "{totalmember}": {
-                            String emoji = getemoji(groupcounting[0]);
-                            resultstr += "*" + emoji + "*" + "\n" + "\n";
-                            break;
-                        }
-                        case "{presentmember}": {
-                            String emoji = getemoji(groupcounting[1]);
-                            resultstr += "*" + emoji + "*" + "\n" + "\n";
+                        case "{totalMember}": {
+                            String emoji = getNumericEmoji(totalMember);
+                            resultantReport.append("*").append(emoji).append("*").append("\n").append("\n");
                             break;
                         }
-                        case "{absentmember}": {
-                            String emoji = getemoji(groupcounting[2]);
-                            resultstr += "*" + emoji + "*" + "\n" + "\n" + "\n";
+                        case "{presentMember}": {
+                            String emoji = getNumericEmoji(presentMember);
+                            resultantReport.append("*").append(emoji).append("*").append("\n").append("\n");
+                            break;
+                        }
+                        case "{absentMember}": {
+                            String emoji = getNumericEmoji(absentMember);
+                            resultantReport.append("*").append(emoji).append("*").append("\n").append("\n").append("\n");
                             break;
                         }
                         case "{area}": {
-                            Log.d(tag, "hit : " + reportFormat[k + 1]);
-                            resultstr += "*🌹" + area + "" + reportFormat[k+1].toString() + "🌹*" + "\n" + "\n";
-                            k++;
+                            resultantReport.append("*🌹").append(area).append(reportFormat[line + 1].toString()).append("🌹*").append("\n").append("\n");
+                            line++;
                             break;
                         }
                         default:
                             if (i == 1 && Switchbuttonstate)
-                                x = "🌹 देवली + संगम विहार सोशल मीडिया लर्निंग ग्रुप सेवा🌹";
-                            resultstr += " *" + x + "*";
+                                reportLine = "🌹 देवली + संगम विहार सोशल मीडिया लर्निंग ग्रुप सेवा🌹";
+
+                            resultantReport.append(" *").append(reportLine).append("*");
 
                             if (j == 5 || j == 7 || j == 9) {
-                                resultstr += " ";
+                                resultantReport.append(" ");
                             } else if (i < gap.length) {
                                 int gapline = gap[i];
-                                resultstr += "\n";
+                                resultantReport.append("\n");
                                 while (gapline > 0) {
-                                    resultstr += "\n";
+                                    resultantReport.append("\n");
                                     gapline--;
                                 }
                                 i++;
@@ -268,9 +220,7 @@ public class Display extends AppCompatActivity {
                     j++;
                 }
 
-                Log.d(tag,"report : "+resultstr);
-
-                copyingdata(resultstr);
+                copyData(resultantReport.toString());
                 vibrate(250);
 
             }
@@ -292,9 +242,9 @@ public class Display extends AppCompatActivity {
                 String updatedcount = count.getText().toString();
 
                 SharedPreferences.Editor myEdit = sharedPreferences.edit();
-                totalmaingroupmember = updatedcount;
-                myEdit.putString("totalmaingroupmember", updatedcount);
-                myEdit.commit();
+                totalMember = updatedcount;
+                myEdit.putString(Helper.TotalMember, updatedcount);
+                myEdit.apply();
 
                 Toast t1 = Toast.makeText(getApplicationContext(), "Updated", Toast.LENGTH_SHORT);
                 t1.show();
@@ -317,8 +267,6 @@ public class Display extends AppCompatActivity {
 
                 currentInputString += copiedText;
 
-                Log.d(tag, copiedText);
-
                 countstrings.setText(currentInputString);
 
                 countstrings.setSelection(countstrings.getText().length());
@@ -335,22 +283,22 @@ public class Display extends AppCompatActivity {
 
                     vibrate(250);
 
-                    String currentDate = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(new Date());
+                    String lastUpdated = Helper.getDate() + " " + Helper.getTime();
+                    lastupdatetime.setText(lastUpdated);
 
-                    String currentTime = new SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(new Date());
+                    int total = Integer.parseInt(count.getText().toString());
 
-                    String lastupdatetimestr = currentDate + " " + currentTime;
+                    String inputHashText = countstrings.getText().toString();
+                    String[] lines=new String[0];
 
-                    lastupdatetime.setText(lastupdatetimestr.toString());
+                    Log.d(tag, "onClick: d"+inputHashText.length());
+                    if(inputHashText.length()>0)
+                        lines=inputHashText.split(separator);
 
-                    String a = count.getText().toString();
-                    int total = Integer.parseInt(a);
 
-                    String enteredstring = countstrings.getText().toString();
-                    Log.d(tag + "identifier", "identifier in result button" + separator);
-                    String[] lines = enteredstring.split(separator);
+                    Log.d(tag, "onClick: d1"+inputHashText.length());
 
-                    absentlist = new HashSet<>();
+                    absentMemberList = new String[total+1];
 
                     int[] arr = new int[total];
 
@@ -359,56 +307,57 @@ public class Display extends AppCompatActivity {
 
                         if (c <= total) arr[c - 1] = 1;
                         else {
-                            Toast.makeText(Display.this, "Number greater than total", Toast.LENGTH_SHORT).show();
+                            displayToast("Number greater than total");
                             vibrate(500);
                         }
                     }
 
-                    String ans = "";
-                    int absentbhagt = 0;
+                    StringBuilder ans = new StringBuilder();
+                    int absentMembers = 0;
 
                     SharedPreferences.Editor myEdit = sharedPreferences.edit();
 
-                    myEdit.putString("mainlastupdate", lastupdatetimestr.toString());
-                    myEdit.putString("inputstring", enteredstring);
-
-                    myEdit.commit();
+                    myEdit.putString(Helper.LastUpdatedTime, lastUpdated);
+                    myEdit.putString(Helper.InputHashText, inputHashText);
+                    myEdit.apply();
 
                     for (int i = 0; i < total; i++) {
                         if (arr[i] == 0) {
                             String sno = (i + 1) + "";
-                            String s1 = sharedPreferences.getString(sno, "defvalue");
-                            absentlist.add(s1);
+                            String s1 = sharedPreferences.getString(sno, "Default Value");
+                            absentMemberList[i+1]=s1;
                             Log.d(tag, "button : " + s1);
-                            absentbhagt++;
-                            ans += s1 + "\n";
+                            absentMembers++;
+                            ans.append(s1).append("\n");
                         }
                     }
-                    totalmaingrouppresentmember = "" + (total - absentbhagt);
-                    totalmaingroupabsentmember = "" + absentbhagt;
 
-                    totalmaingrouppresentmember = formatstr(totalmaingroupmember, totalmaingrouppresentmember);
-                    totalmaingroupabsentmember = formatstr(totalmaingroupmember, totalmaingroupabsentmember);
+                    presentMember = "" + (total - absentMembers);
+                    absentMember = "" + absentMembers;
+
+                    presentMember = formatstr(totalMember, presentMember);
+                    absentMember = formatstr(totalMember, absentMember);
 
                     result.setText(ans.toString());
-                    countabsent.setText(absentbhagt + "");
+                    countabsent.setText(absentMembers + "");
 
                     InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
 
-
                     if (imm.isAcceptingText()) {
-                        hidekeyboard();
+                        hideKeyboard();
                         Log.d(tag, "Software Keyboard was shown");
                     } else {
                         Log.d(tag, "Software Keyboard was not shown");
                     }
                 } catch (Exception e) {
                     Log.d(tag, e.toString());
-                    Toast.makeText(Display.this, "Please enter correct", Toast.LENGTH_SHORT).show();
+
+                    displayToast("Please enter correct");
+
                     InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
 
                     if (imm.isAcceptingText()) {
-                        hidekeyboard();
+                        hideKeyboard();
                         Log.d(tag, "Software Keyboard was shown");
                     } else {
                         Log.d(tag, "Software Keyboard was not shown");
@@ -425,7 +374,7 @@ public class Display extends AppCompatActivity {
 
                 int duration = Toast.LENGTH_SHORT;
 
-                displaytoast("copied");
+                displayToast("copied");
 
                 Toast toast1 = Toast.makeText(context, "copied", duration);
                 toast1.show();
@@ -453,7 +402,7 @@ public class Display extends AppCompatActivity {
         updateContactsButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                updatecontact();
+                updateContact();
             }
         });
 
@@ -463,73 +412,64 @@ public class Display extends AppCompatActivity {
         super.onResume();
         view = getWindow().getDecorView().getRootView();
 
-        SharedPreferences sharedPreferencesGroup = getSharedPreferences("group", MODE_PRIVATE);
-
-        sPref = sharedPreferencesGroup.getString("sPref", "MainGroupSharedPref");
-
-        Log.d(tag, "onResume: called , spref : " + sPref);
-        setText(sharedPreferences);
+        setSharedPreferences();
     }
 
     public void onStart() {
         super.onStart();
         view = getWindow().getDecorView().getRootView();
 
-        SharedPreferences sharedPreferencesGroup = getSharedPreferences("group", MODE_PRIVATE);
-
-        sPref = sharedPreferencesGroup.getString("sPref", "MainGroupSharedPref");
-
-        Log.d(tag, "onStart: called , spref : " + sPref);
-        setText(sharedPreferences);
+        setSharedPreferences();
     }
 
-    class updatecontact extends Thread {
+    public void setSharedPreferences(){
+        try {
 
-        String sPref;
+            SharedPreferences sharedPreferencesGroup = getSharedPreferences("group", MODE_PRIVATE);
+            sPref = sharedPreferencesGroup.getString(Helper.SelectedGroup, "MainGroupSharedPref");
+            sharedPreferences = getSharedPreferences(sPref, MODE_PRIVATE);
+            setText(sharedPreferences);
+        }catch (Exception ignored){
+            Log.d(tag, "setSharedPreferences: "+ignored.toString());
+        }
+    }
+
+    class UpdateContacts extends Thread {
+
+        String contactIdentifier;
         View view;
 
-        updatecontact(View view, String sPref) {
+        UpdateContacts(View view, String contactIdentifier) {
             this.view = view;
-            this.sPref = sPref;
+            this.contactIdentifier = contactIdentifier;
         }
 
         public void run() {
             try {
 
-                SharedPreferences sharedPreferences = getSharedPreferences(sPref, MODE_PRIVATE);
-                String contactIdentifier = sharedPreferences.getString(sPref + "-identifier", "SM");
-
                 vibrate(100);
-                displaysnakbar(view, contactIdentifier + " Tag Contact Updating....");
+                displaySnackbar(view, contactIdentifier + " Tag Contact Updating....");
 
+                List<ContactModel>[] contactsList = getListsOfBothGroup(contactIdentifier);
 
-                List[] list = getlistofbothgroup(contactIdentifier);
-                int foundContact = 0;
-
-                Log.d(tag, "sPref : " + sPref);
-
-
-                if (sPref.equals("MainGroupSharedPref")) {
-                    List<ContactModel> mainbhagtcontacts = list[0];
-                    foundContact = mainbhagtcontacts.size();
-                    putintoSharedPre(mainbhagtcontacts, sharedPreferences);
-                } else {
-                    List<ContactModel> learningbhagat = list[1];
-                    list[0] = list[1];
-                    foundContact = learningbhagat.size();
-                    putintoSharedPre(learningbhagat, sharedPreferences);
+                if (!sPref.equals("MainGroupSharedPref")) {
+                    contactsList[0] = contactsList[1];
                 }
 
-                String printMessage = foundContact + " Contacts Found with " + contactIdentifier;
+                List<ContactModel> groupMemberContacts = contactsList[0];
+                int foundContacts = groupMemberContacts.size();
+                putContactsIntoStorage(groupMemberContacts);
 
-                displaysnakbar(view, printMessage);
+                String printMessage = foundContacts + " Contacts Found with " + contactIdentifier;
 
-                vibrate(1500);
+                displaySnackbar(view, printMessage);
+
+                vibrate(1000);
                 i--;
 
             } catch (Exception e) {
                 Log.d(tag, "error here : " + e.toString());
-                displaysnakbar(view, "Something Went Wrong");
+                displaySnackbar(view, "Something Went Wrong");
                 i--;
             }
 
@@ -574,22 +514,15 @@ public class Display extends AppCompatActivity {
         }
     }
 
-    public void updatecontact() {
-
-        Log.d(tag, "updatecontact.......");
+    public void updateContact() {
 
         try {
-            Log.d(tag, "updatecontact");
             if (checkPermissionGranted()) {
-                Log.d(tag, "starts updating");
                 startContactUpdating();
             } else {
-                Log.d(tag, "it is here");
                 String[] permissions = {READ_CONTACTS};
                 Random rand = new Random();
                 REQ_CODE = rand.nextInt(1000);
-                Log.d(tag, REQ_CODE + "");
-
                 ActivityCompat.requestPermissions(Display.this, permissions, REQ_CODE);
             }
         } catch (Exception e) {
@@ -602,8 +535,7 @@ public class Display extends AppCompatActivity {
     public void startContactUpdating() {
         if (i == 0) {
             i++;
-            Log.d(tag, "startContactUpdating");
-            updatecontactobj = new updatecontact(view, sPref);
+            updatecontactobj = new UpdateContacts(view, identifier);
             updatecontactobj.start();
         } else {
             Log.d(tag, "i not zero");
@@ -615,19 +547,16 @@ public class Display extends AppCompatActivity {
 
         SharedPreferences sharedPreferences = getSharedPreferences(sPref, MODE_PRIVATE);
 
-        separator = sharedPreferences.getString(sPref + "-separator", "%");
-        String identifier1 = sharedPreferences.getString(sPref + "-identifier", "%");
-
-        Log.d(tag, "identifier : " + identifier);
-        Log.d(tag, "identifier1 : " + identifier1);
+        separator = sharedPreferences.getString(Helper.Separator, "%");
+        String identifier1 = sharedPreferences.getString(Helper.Identifier, "%");
 
         if (!identifier.equals(identifier1)) {
-            updatecontact();
+            updateContact();
         }
 
     }
 
-    public void displaysnakbar(View view, String data) {
+    public void displaySnackbar(View view, String data) {
         Snackbar snk = Snackbar.make(view, data, Snackbar.LENGTH_SHORT).setAction("Action", null);
 
         View sbView = snk.getView();
@@ -642,24 +571,16 @@ public class Display extends AppCompatActivity {
 
         if (len1 == len2) return modify;
 
-        String zero = "";
+        StringBuilder zero = new StringBuilder();
         int missing = len1 - len2;
 
         while (missing-- > 0) {
-            zero += "0";
+            zero.append("0");
         }
+
         modify = zero + modify;
         return modify;
 
-    }
-
-    private void displaydate() {
-//        TextView date = (TextView) findViewById(R.id.date);
-        String currentDate = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(new Date());
-
-        Date currentTime = Calendar.getInstance().getTime();
-        todaydate = "" + currentDate.toString();
-//        date.setText(currentDate.toString());
     }
 
     public void vibrate(int duration) {
@@ -672,56 +593,41 @@ public class Display extends AppCompatActivity {
         }
     }
 
-    public void putintoSharedPre(List<ContactModel> bhagtcontact, SharedPreferences Obj) {
+    public void putContactsIntoStorage(List<ContactModel> groupMember) {
 
-        SharedPreferences.Editor myEdit = Obj.edit();
+        SharedPreferences.Editor myEdit = sharedPreferences.edit();
 
-        for (ContactModel contact : bhagtcontact) {
-
+        for (ContactModel contact : groupMember) {
             myEdit.putString("" + contact.serialNumber, contact.name.toString());
-
         }
-        myEdit.commit();
+        myEdit.apply();
     }
 
-    public void hidekeyboard() {
+    public void hideKeyboard() {
         InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
     }
 
-    public String getemoji(String totalmember) {
-
-        Log.d(tag, totalmember);
+    public String getNumericEmoji(String member) {
 
         String[] str = {"0️⃣", "1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣"};
 
-        String result = "";
+        StringBuilder result = new StringBuilder();
 
-        for (int i = 0; i < totalmember.length(); i++) {
-            int c = Integer.parseInt(totalmember.charAt(i) + "");
-            result += "" + str[c];
-            if (totalmember.length() == 1 && totalmember.charAt(0) == '0') {
-                result += "" + str[c];
+        for (int i = 0; i < member.length(); i++) {
+            int c = Integer.parseInt(member.charAt(i) + "");
+            result.append("").append(str[c]);
+            if (member.length() == 1 && member.charAt(0) == '0') {
+                result.append("").append(str[c]);
             }
         }
 
-        Log.d(tag, result);
-        return result;
+        return result.toString();
     }
 
-    public void print(String data) {
-        Log.d(tag, data);
-    }
+    public List<ContactModel>[] getListsOfBothGroup(String contactIdentifier) {
 
-    public void print(String extratag, String data) {
-        Log.d(tag + extratag, data);
-    }
-
-    public List[] getlistofbothgroup(String contactIdentifier) {
-
-        List[] contactsList = getContacts(this, contactIdentifier);
-
-        return contactsList;
+        return getContacts(this, contactIdentifier);
 
     }
 
@@ -742,6 +648,7 @@ public class Display extends AppCompatActivity {
 
     public String trimstr(String str) {
 
+        Log.d(tag, "trimstr:"+str);
         String resultstr = "";
         boolean canstart = false;
 
@@ -767,29 +674,29 @@ public class Display extends AppCompatActivity {
         return resultstr;
     }
 
-    public boolean isbelongtolearninggroup(String name) {
+    public boolean isBelongToLearningGroup(String name) {
 
         int len = name.length();
 
         for (int i = 0; i < len - 1; i++) {
 
-            String learninggrouptag = name.charAt(i) + "" + name.charAt(i + 1);
+            String learningGroupTag = name.charAt(i) + "" + name.charAt(i + 1);
 
-            if (learninggrouptag.equals("S2")) {
+            if (learningGroupTag.equals("S2")) {
                 return true;
             }
         }
         return false;
     }
 
-    public List[] getContacts(Context ctx, String contactIdentifier) {
+    public List<ContactModel>[] getContacts(Context ctx, String contactIdentifier) {
         try {
 
             List<ContactModel> contactList = new ArrayList<>();
             HashMap<String, Integer> mainmap = new HashMap<>();
             List<ContactModel> contactListLearn = new ArrayList<>();
 
-            List[] list = new List[2];
+            List<ContactModel>[] list = new List[2];
 
             ContentResolver contentResolver = ctx.getContentResolver();
             Cursor cursor = contentResolver.query(ContactsContract.Contacts.CONTENT_URI, null, null, null, null);
@@ -815,7 +722,7 @@ public class Display extends AppCompatActivity {
                                 newContact.name = name;
                                 newContact.mobileNumber = mobileNumber;
 
-                                if (isbelongtolearninggroup(name)) {
+                                if (isBelongToLearningGroup(name)) {
                                     String[] arr = name.split(" .");
                                     newContact.serialNumber = "" + getSerialNumber(arr[0]);
                                     contactListLearn.add(newContact);
@@ -840,46 +747,45 @@ public class Display extends AppCompatActivity {
             return list;
 
         } catch (SecurityException e) {
-            print("e : ", e.toString());
             return null;
         }
     }
 
-    public void copyingdata(String displaystring) {
+    public void copyData(String displayString) {
 
         ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-        ClipData clip = ClipData.newPlainText("label", displaystring);
+        ClipData clip = ClipData.newPlainText("label", displayString);
         clipboard.setPrimaryClip(clip);
 
     }
 
-    public void displaytoast(String displaytext) {
-        Toast t1 = Toast.makeText(getApplicationContext(), displaytext, Toast.LENGTH_SHORT);
+    public void displayToast(String displayText) {
+        Toast t1 = Toast.makeText(getApplicationContext(), displayText, Toast.LENGTH_SHORT);
         t1.show();
     }
 
     public void setText(SharedPreferences shPref) {
 
-        EditText count = (EditText) findViewById(R.id.count);
-        EditText countstrings = (EditText) findViewById(R.id.inputHashText);
-        TextView lastupdatetime = (TextView) findViewById(R.id.lastupdatetime);
+        try {
+            EditText count = (EditText) findViewById(R.id.count);
+            EditText inputHashText = (EditText) findViewById(R.id.inputHashText);
+            TextView lastUpdatedTime = (TextView) findViewById(R.id.lastupdatetime);
 
-        String inputstring = shPref.getString("inputstring", "");
-        String lastupdatedtime = shPref.getString("mainlastupdate", "last-update");
+            String inputString = shPref.getString(Helper.InputHashText, "");
+            String lastUpdateTime = shPref.getString(Helper.LastUpdatedTime, "last-updated");
+            identifier = shPref.getString(Helper.Identifier, "SM");
+            separator = shPref.getString(Helper.Separator, "%");
+            area = shPref.getString( Helper.Area, "देवली+ संगम विहार");
+            totalMember = shPref.getString(Helper.TotalMember, "0");
 
-        count.setText(totalmaingroupmember);
-        countstrings.setText(inputstring);
-        identifier = shPref.getString(sPref + "-identifier", "SM");
-        separator = shPref.getString(sPref + "-separator", "%");
-        area = shPref.getString(sPref + "-area", "देवली+ संगम विहार");
+            count.setText(totalMember);
+            inputHashText.setText(inputString);
+            lastUpdatedTime.setText(lastUpdateTime);
 
-        lastupdatetime.setText(lastupdatedtime.toString());
-
-        Log.d(tag, "setText called");
-        Log.d(tag, inputstring);
-
-        countstrings.setSelection(countstrings.getText().length());
-
+            inputHashText.setSelection(inputHashText.getText().length());
+        } catch (Exception e) {
+            displayToast("Some things Went Wrong please Close the App");
+        }
     }
 
     public void doConfiguration(View v) {
@@ -900,29 +806,6 @@ public class Display extends AppCompatActivity {
         i.putExtra("sPref", sPref);
         i.putExtra("value", inputStr);
         startActivity(i);
-    }
-
-    public void getFormat(String reportFormat[], String[] groupcounting) {
-        String resultstr = "";
-
-        for (String line : reportFormat) {
-            if (line == "{date}") {
-                resultstr += "*" + todaydate + "*";
-            } else if (line.equals("{totalmember}")) {
-                String emoji = getemoji(groupcounting[0]);
-                resultstr += "*" + emoji + "*";
-            } else if (line.equals("{presentmember}")) {
-                String emoji = getemoji(groupcounting[1]);
-                resultstr += "*" + emoji + "*";
-            } else if (line == "{absentmember}") {
-                String emoji = getemoji(groupcounting[2]);
-                resultstr += "*" + emoji + "*";
-            } else {
-                if (line.isEmpty()) resultstr += "\n";
-            }
-            resultstr += "\n";
-        }
-
     }
 
 }
