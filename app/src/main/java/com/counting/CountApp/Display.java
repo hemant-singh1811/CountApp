@@ -36,6 +36,7 @@ import android.widget.Toast;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -63,6 +64,7 @@ public class Display extends AppCompatActivity {
     String prevActivity = "";
     String tag = "DisplayActivityTag";
     SharedPreferences sharedPreferences = null;
+    SharedPreferences sharedPreferencesContactsGroup;
     int REQ_CODE = 200;
     View view = null;
     String area = "";
@@ -71,7 +73,6 @@ public class Display extends AppCompatActivity {
 
     //        String[] reportFormat = {"🙏बन्दीछोड सतगुरु रामपाल जी महाराज जी की जय हो🙏", "🌹 अंबेडकर नगर सोशल मीडिया सेवा🌹", "{date}", "की सेवा का विवरण", "जिन भगतात्माओ ने सेवा की है।", "Total members        ➡", "{totalmember}", "PRESENT.                 ➡", "{presentmember}", "ABSENT.                   ➡", "{absentmember}", "Note:- सभी भगतात्माओ से प्रार्थना है सेवा में बढ़-चढ़कर सहयोग करें।", "🙏 सत साहेब जी 🙏"};
     String[] reportFormat = {"🙏बन्दीछोड सतगुरु रामपाल जी महाराज जी की जय हो🙏", "{area}", " सोशल मीडिया सेवा", "{date}", "की सेवा का विवरण", "जिन भगतात्माओ ने सेवा की है।", "Total members        ➡", "{totalMember}", "PRESENT.                 ➡", "{presentMember}", "ABSENT.                   ➡", "{absentMember}", "Note:- सभी भगतात्माओ से प्रार्थना है सेवा में बढ़-चढ़कर सहयोग करें।", "🙏 सत साहेब जी 🙏"};
-
     String[] reportFormat1Test = {"🙏बन्दीछोड सतगुरु रामपाल जी महाराज जी की जय हो🙏", "🌹 देवली+ संगम विहार सोशल मीडिया सेवा🌹", "{date}", "की सेवा का विवरण", "जिन भगतात्माओ ने सेवा की है।", "Total members        ➡", "{totalMember}", "PRESENT.                 ➡", "{presentMember}", "ABSENT.                   ➡", "{absentMember}", "Note:- सभी भगतात्माओ से प्रार्थना है सेवा में बढ़-चढ़कर सहयोग करें।", "🙏 सत साहेब जी 🙏"};
 
 
@@ -122,38 +123,52 @@ public class Display extends AppCompatActivity {
         getAbsentButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                int[] gap = {0};
-                int i = 0;
-                StringBuilder resultantReport = new StringBuilder();
-                String alert = "🚨";
+                try {
+                    int[] gap = {0};
+                    int i = 0;
+                    int absentCount=1;
+                    StringBuilder resultantReport = new StringBuilder();
+                    String alert = "🚨";
 
-                for (String reportLine : absentReportFormat) {
-                    if (reportLine.equals("date")) {
-                        resultantReport.append("*(").append(Helper.getDate()).append(")").append(alert).append("*");
-                    } else {
-                        resultantReport.append(" *").append(reportLine).append("*");
+                    for (String reportLine : absentReportFormat) {
+                        if (reportLine.equals("date")) {
+                            resultantReport.append("*(").append(Helper.getDate()).append(")").append(alert).append("*");
+                        } else {
+                            resultantReport.append(" *").append(reportLine).append("*");
 
-                        if (i < gap.length) {
-                            int gapLine = gap[i];
-                            resultantReport.append("\n");
-                            while (gapLine-- > 0) {
+                            if (i < gap.length) {
+                                int gapLine = gap[i];
                                 resultantReport.append("\n");
+                                while (gapLine-- > 0) {
+                                    resultantReport.append("\n");
+                                }
                             }
+                            i++;
                         }
-                        i++;
                     }
+                    resultantReport.append("\n \n \n");
+
+                    Log.d(tag, "absentMemberList: "+absentMemberList.length);
+
+                    for(int j=1;j<absentMemberList.length;j++){
+                        String absentMemberName=absentMemberList[j];
+
+                        if(absentMemberName.equals("null")) continue;
+
+                        String trimmedName = trimstr(absentMemberName);
+
+                        resultantReport.append("").append(absentCount++).append(".")
+                                .append(trimmedName).append("\n \n");
+
+                    }
+
+                    copyData(resultantReport.toString());
+                    vibrate(250);
+                }catch (Exception e){
+                    Log.d(tag, "onClick: "+e.toString());
+                    displayToast("Something went wrong");
                 }
-                resultantReport.append("\n \n \n");
 
-                for(int j=1;j<absentMemberList.length;j++){
-                    String trimmedName = trimstr(absentMemberList[j]);
-
-                    resultantReport.append("").append(j).append(".")
-                            .append(trimmedName).append("\n \n");
-                }
-
-                copyData(resultantReport.toString());
-                vibrate(250);
             }
         });
 
@@ -278,9 +293,7 @@ public class Display extends AppCompatActivity {
         convertSnoToNameButton.setOnClickListener(new OnClickListener() {
 
             public void onClick(View v) {
-
                 try {
-
                     vibrate(250);
 
                     String lastUpdated = Helper.getDate() + " " + Helper.getTime();
@@ -291,14 +304,12 @@ public class Display extends AppCompatActivity {
                     String inputHashText = countstrings.getText().toString();
                     String[] lines=new String[0];
 
-                    Log.d(tag, "onClick: d"+inputHashText.length());
                     if(inputHashText.length()>0)
                         lines=inputHashText.split(separator);
 
-
-                    Log.d(tag, "onClick: d1"+inputHashText.length());
-
                     absentMemberList = new String[total+1];
+                    Arrays.fill(absentMemberList,"null");
+
 
                     int[] arr = new int[total];
 
@@ -324,13 +335,13 @@ public class Display extends AppCompatActivity {
                     for (int i = 0; i < total; i++) {
                         if (arr[i] == 0) {
                             String sno = (i + 1) + "";
-                            String s1 = sharedPreferences.getString(sno, "Default Value");
+                            String s1 = sharedPreferencesContactsGroup.getString(sno, "Default Value");
                             absentMemberList[i+1]=s1;
-                            Log.d(tag, "button : " + s1);
                             absentMembers++;
                             ans.append(s1).append("\n");
                         }
                     }
+
 
                     presentMember = "" + (total - absentMembers);
                     absentMember = "" + absentMembers;
@@ -428,6 +439,7 @@ public class Display extends AppCompatActivity {
             SharedPreferences sharedPreferencesGroup = getSharedPreferences("group", MODE_PRIVATE);
             sPref = sharedPreferencesGroup.getString(Helper.SelectedGroup, "MainGroupSharedPref");
             sharedPreferences = getSharedPreferences(sPref, MODE_PRIVATE);
+            sharedPreferencesContactsGroup = getSharedPreferences(sPref+"ContactsGroup", MODE_PRIVATE);
             setText(sharedPreferences);
         }catch (Exception ignored){
             Log.d(tag, "setSharedPreferences: "+ignored.toString());
@@ -487,13 +499,10 @@ public class Display extends AppCompatActivity {
                 int res = grantResults[0];
                 boolean checkloc = res == PackageManager.PERMISSION_GRANTED;
                 if (checkloc) {
-                    Log.d(tag, "p grattedf : " + res);
                     startContactUpdating();
                 } else {
-
                 }
             }
-
         } else {
             Log.d(tag, "p no");
         }
@@ -501,10 +510,8 @@ public class Display extends AppCompatActivity {
 
     public boolean checkPermissionGranted() {
 
-        Log.d(tag, "dasdas");
         int result = ActivityCompat.checkSelfPermission(this, READ_CONTACTS);
 
-        Log.d(tag, "result : " + result);
         if (result == PackageManager.PERMISSION_GRANTED) {
             Log.d(tag, "permission granted ");
             return true;
@@ -595,7 +602,9 @@ public class Display extends AppCompatActivity {
 
     public void putContactsIntoStorage(List<ContactModel> groupMember) {
 
-        SharedPreferences.Editor myEdit = sharedPreferences.edit();
+        sharedPreferencesContactsGroup.edit().clear().commit();
+
+        SharedPreferences.Editor myEdit = sharedPreferencesContactsGroup.edit();
 
         for (ContactModel contact : groupMember) {
             myEdit.putString("" + contact.serialNumber, contact.name.toString());
@@ -633,45 +642,52 @@ public class Display extends AppCompatActivity {
 
     public static int getSerialNumber(String str) {
 
-        String ans = "";
+        StringBuilder ans = new StringBuilder();
 
         for (int i = 0; i < str.length(); i++) {
             char c = str.charAt(i);
 
-            if (c == '.') return Integer.parseInt(ans);
+            if (c == '.') return Integer.parseInt(ans.toString());
 
-            ans += c;
+            ans.append(c);
 
         }
-        return Integer.parseInt(ans);
+        return Integer.parseInt(ans.toString());
     }
 
     public String trimstr(String str) {
 
-        Log.d(tag, "trimstr:"+str);
-        String resultstr = "";
-        boolean canstart = false;
+        try {
+            StringBuilder resultstr = new StringBuilder();
+            boolean canstart = false;
 
-        for (int i = 0; i < str.length() - 1; i++) {
-            char c = str.charAt(i);
-            if (canstart) {
-                String ct = "" + str.charAt(i) + str.charAt(i + 1);
-                if (ct.equals("SV")) {
-                    return resultstr;
+            for (int i = 0; i < str.length() - 1; i++) {
+                char c = str.charAt(i);
+                if (canstart) {
+                    String ct = "" + str.charAt(i) + str.charAt(i + 1);
+                    if (ct.equals(identifier)) {
+                        return resultstr.toString();
+                    }
+                    resultstr.append(c);
                 }
-                resultstr += c;
-            }
-            if (!Switchbuttonstate) {
-                if (c == '.') canstart = true;
-            } else {
-                String ct = "" + str.charAt(i) + str.charAt(i + 1);
-                if (ct.equals("S2")) {
-                    canstart = true;
-                    i++;
+                if (!Switchbuttonstate) {
+                    if (c == '.') canstart = true;
+                } else {
+                    String ct = "" + str.charAt(i) + str.charAt(i + 1);
+                    if (ct.equals("S2")) {
+                        canstart = true;
+                        i++;
+                    }
                 }
             }
+            resultstr.append(" ");
+
+            return resultstr.toString();
         }
-        return resultstr;
+        catch (Exception e){
+            Log.d(tag, "trimstr error : "+e.toString());
+            return "";
+        }
     }
 
     public boolean isBelongToLearningGroup(String name) {
@@ -713,13 +729,16 @@ public class Display extends AppCompatActivity {
 
                             if (name.length() <= 2) continue;
 
-                            String nameEndString = name.substring(name.length() - 2);
+                            int identifierLength=contactIdentifier.length();
+
+                            String nameEndString = name.substring(name.length() - identifierLength);
 
                             if (Character.isDigit(name.charAt(0)) && nameEndString.equals(contactIdentifier)) {
                                 ContactModel newContact = new ContactModel();
                                 newContact.id = id;
                                 newContact.serialNumber = "";
-                                newContact.name = name;
+                                newContact.name = name.substring(0,name.length() - identifierLength);
+
                                 newContact.mobileNumber = mobileNumber;
 
                                 if (isBelongToLearningGroup(name)) {
