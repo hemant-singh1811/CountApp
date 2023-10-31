@@ -123,9 +123,12 @@ public class groupConfig extends AppCompatActivity {
         String area=areaTag.getText().toString();
         setArea(area);
 
-        Intent i = new Intent(getApplicationContext(), Display.class);
-        i.putExtra("prev", "groupConfig");
-        startActivity(i);
+//        Intent i = new Intent(getApplicationContext(), Display.class);
+//        i.putExtra("prev", "groupConfig");
+//        startActivity(i);
+
+        super.onBackPressed();
+
 
     }
 

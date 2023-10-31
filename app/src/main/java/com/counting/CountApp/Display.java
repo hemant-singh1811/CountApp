@@ -271,22 +271,26 @@ public class Display extends AppCompatActivity {
         pasteButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
+                try {
+                    String currentInputString = countstrings.getText().toString();
 
-                String currentInputString = countstrings.getText().toString();
+                    ClipboardManager myClipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
 
-                ClipboardManager myClipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+                    ClipData clipData = myClipboard.getPrimaryClip();
 
-                ClipData clipData = myClipboard.getPrimaryClip();
+                    String copiedText = clipData.getItemAt(0).coerceToText(getApplicationContext()).toString();
 
-                String copiedText = clipData.getItemAt(0).coerceToText(getApplicationContext()).toString();
+                    currentInputString += copiedText;
 
-                currentInputString += copiedText;
+                    countstrings.setText(currentInputString);
 
-                countstrings.setText(currentInputString);
+                    countstrings.setSelection(countstrings.getText().length());
 
-                countstrings.setSelection(countstrings.getText().length());
+                    vibrate(250);
+                }catch (Exception e){
+                    Log.d(tag, "pasteButton onClick: "+e.toString());
+                }
 
-                vibrate(250);
             }
         });
 
@@ -432,6 +436,20 @@ public class Display extends AppCompatActivity {
 
         setSharedPreferences();
     }
+
+    public void onPause(){
+        super.onPause();
+
+        Log.d(tag, "onPause: ");
+    }
+
+
+    public void onStop(){
+        super.onStop();
+
+        Log.d(tag, "onStop: ");
+    }
+
 
     public void setSharedPreferences(){
         try {
