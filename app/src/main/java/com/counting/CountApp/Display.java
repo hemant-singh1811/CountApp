@@ -4,11 +4,13 @@ import static android.Manifest.permission.READ_CONTACTS;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
 
 import android.annotation.SuppressLint;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.content.ClipData;
 import android.content.ClipboardManager;
@@ -19,40 +21,36 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Build;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
+import android.os.Handler;
 import android.os.VibrationEffect;
 import android.provider.ContactsContract;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 
 import android.os.Vibrator;
 
-import java.util.Calendar;
-import java.util.Date;
 import java.util.Random;
-
-import com.counting.CountApp.Helper.*;
 
 public class Display extends AppCompatActivity {
 
-    int i = 0;
     String sPref = "";
     String totalMember = "48";
     String presentMember = "0";
@@ -106,10 +104,12 @@ public class Display extends AppCompatActivity {
         ImageView resizeButton = (ImageView) findViewById(R.id.resizeText);
         ImageView pasteButton = (ImageView) findViewById(R.id.pasteButton);
         ImageView updateContactsButton = (ImageView) findViewById(R.id.refreshbutton);
+        ProgressBar simpleProgressBar = (ProgressBar) findViewById(R.id.contactsUpdateBar);
 
         if (prevActivity != null) {
             updateConfig(view);
         }
+
 
         resizeButton.setOnClickListener(new OnClickListener() {
             @Override
@@ -126,7 +126,7 @@ public class Display extends AppCompatActivity {
                 try {
                     int[] gap = {0};
                     int i = 0;
-                    int absentCount=1;
+                    int absentCount = 1;
                     StringBuilder resultantReport = new StringBuilder();
                     String alert = "🚨";
 
@@ -148,12 +148,12 @@ public class Display extends AppCompatActivity {
                     }
                     resultantReport.append("\n \n \n");
 
-                    Log.d(tag, "absentMemberList: "+absentMemberList.length);
+                    Log.d(tag, "absentMemberList: " + absentMemberList.length);
 
-                    for(int j=1;j<absentMemberList.length;j++){
-                        String absentMemberName=absentMemberList[j];
+                    for (int j = 1; j < absentMemberList.length; j++) {
+                        String absentMemberName = absentMemberList[j];
 
-                        if(absentMemberName.equals("null")) continue;
+                        if (absentMemberName.equals("null")) continue;
 
                         String trimmedName = trimstr(absentMemberName);
 
@@ -164,8 +164,8 @@ public class Display extends AppCompatActivity {
 
                     copyData(resultantReport.toString());
                     vibrate(250);
-                }catch (Exception e){
-                    Log.d(tag, "onClick: "+e.toString());
+                } catch (Exception e) {
+                    Log.d(tag, "onClick: " + e.toString());
                     displayToast("Something went wrong");
                 }
 
@@ -242,6 +242,7 @@ public class Display extends AppCompatActivity {
         });
 
         count.addTextChangedListener(new TextWatcher() {
+
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
@@ -287,8 +288,8 @@ public class Display extends AppCompatActivity {
                     countstrings.setSelection(countstrings.getText().length());
 
                     vibrate(250);
-                }catch (Exception e){
-                    Log.d(tag, "pasteButton onClick: "+e.toString());
+                } catch (Exception e) {
+                    Log.d(tag, "pasteButton onClick: " + e.toString());
                 }
 
             }
@@ -298,6 +299,11 @@ public class Display extends AppCompatActivity {
 
             public void onClick(View v) {
                 try {
+
+                    ConstraintLayout rt = (ConstraintLayout)findViewById(R.id.bottomSpace);
+
+                    rt.setVisibility(View.VISIBLE);
+
                     vibrate(250);
 
                     String lastUpdated = Helper.getDate() + " " + Helper.getTime();
@@ -306,13 +312,13 @@ public class Display extends AppCompatActivity {
                     int total = Integer.parseInt(count.getText().toString());
 
                     String inputHashText = countstrings.getText().toString();
-                    String[] lines=new String[0];
+                    String[] lines = new String[0];
 
-                    if(inputHashText.length()>0)
-                        lines=inputHashText.split(separator);
+                    if (inputHashText.length() > 0)
+                        lines = inputHashText.split(separator);
 
-                    absentMemberList = new String[total+1];
-                    Arrays.fill(absentMemberList,"null");
+                    absentMemberList = new String[total + 1];
+                    Arrays.fill(absentMemberList, "null");
 
 
                     int[] arr = new int[total];
@@ -340,7 +346,7 @@ public class Display extends AppCompatActivity {
                         if (arr[i] == 0) {
                             String sno = (i + 1) + "";
                             String s1 = sharedPreferencesContactsGroup.getString(sno, "Default Value");
-                            absentMemberList[i+1]=s1;
+                            absentMemberList[i + 1] = s1;
                             absentMembers++;
                             ans.append(s1).append("\n");
                         }
@@ -437,30 +443,28 @@ public class Display extends AppCompatActivity {
         setSharedPreferences();
     }
 
-    public void onPause(){
+    public void onPause() {
         super.onPause();
 
         Log.d(tag, "onPause: ");
     }
 
-
-    public void onStop(){
+    public void onStop() {
         super.onStop();
 
         Log.d(tag, "onStop: ");
     }
 
-
-    public void setSharedPreferences(){
+    public void setSharedPreferences() {
         try {
 
             SharedPreferences sharedPreferencesGroup = getSharedPreferences("group", MODE_PRIVATE);
             sPref = sharedPreferencesGroup.getString(Helper.SelectedGroup, "MainGroupSharedPref");
             sharedPreferences = getSharedPreferences(sPref, MODE_PRIVATE);
-            sharedPreferencesContactsGroup = getSharedPreferences(sPref+"ContactsGroup", MODE_PRIVATE);
+            sharedPreferencesContactsGroup = getSharedPreferences(sPref + "ContactsGroup", MODE_PRIVATE);
             setText(sharedPreferences);
-        }catch (Exception ignored){
-            Log.d(tag, "setSharedPreferences: "+ignored.toString());
+        } catch (Exception ignored) {
+            Log.d(tag, "setSharedPreferences: " + ignored.toString());
         }
     }
 
@@ -475,10 +479,14 @@ public class Display extends AppCompatActivity {
         }
 
         public void run() {
-            try {
+            ProgressBar simpleProgressBar = (ProgressBar) findViewById(R.id.contactsUpdateBar);
+            ImageView updateContactsButton = (ImageView) findViewById(R.id.refreshbutton);
 
-                vibrate(100);
+            try {
+                setVisibility(simpleProgressBar, updateContactsButton, true);
+
                 displaySnackbar(view, contactIdentifier + " Tag Contact Updating....");
+                vibrate(100);
 
                 List<ContactModel>[] contactsList = getListsOfBothGroup(contactIdentifier);
 
@@ -491,20 +499,33 @@ public class Display extends AppCompatActivity {
                 putContactsIntoStorage(groupMemberContacts);
 
                 String printMessage = foundContacts + " Contacts Found with " + contactIdentifier;
-
                 displaySnackbar(view, printMessage);
-
                 vibrate(1000);
-                i--;
+
+                setVisibility(simpleProgressBar, updateContactsButton, false);
 
             } catch (Exception e) {
                 Log.d(tag, "error here : " + e.toString());
                 displaySnackbar(view, "Something Went Wrong");
-                i--;
+                setVisibility(simpleProgressBar, updateContactsButton, false);
             }
 
         }
+    }
 
+    public void setVisibility(ProgressBar simpleProgressBar, ImageView updateContactsButton, boolean isVisible) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (isVisible) {
+                    simpleProgressBar.setVisibility(View.VISIBLE);
+                    updateContactsButton.setVisibility(View.INVISIBLE);
+                } else {
+                    simpleProgressBar.setVisibility(View.INVISIBLE);
+                    updateContactsButton.setVisibility(View.VISIBLE);
+                }
+            }
+        });
     }
 
     @Override
@@ -545,26 +566,22 @@ public class Display extends AppCompatActivity {
             if (checkPermissionGranted()) {
                 startContactUpdating();
             } else {
+                displayPermissionSnackbar(view, "Permission not granted");
                 String[] permissions = {READ_CONTACTS};
                 Random rand = new Random();
                 REQ_CODE = rand.nextInt(1000);
                 ActivityCompat.requestPermissions(Display.this, permissions, REQ_CODE);
+
             }
         } catch (Exception e) {
             Log.d(tag, "error is here" + e.toString());
 
         }
-
     }
 
     public void startContactUpdating() {
-        if (i == 0) {
-            i++;
             updatecontactobj = new UpdateContacts(view, identifier);
             updatecontactobj.start();
-        } else {
-            Log.d(tag, "i not zero");
-        }
     }
 
     public void updateConfig(View view) {
@@ -586,7 +603,30 @@ public class Display extends AppCompatActivity {
 
         View sbView = snk.getView();
         snk.show();
+    }
 
+    public void displayPermissionSnackbar(View view, String data) {
+
+        try {
+            Snackbar snk = Snackbar.make(view, data, Snackbar.LENGTH_SHORT).setAction("Action", null);
+
+            View sbView = snk.getView();
+
+            snk.setAction("Set Permission", new OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    startActivity(
+                            new Intent(
+                                    android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                                    Uri.fromParts("package", getPackageName(), null)
+                            )
+                    );
+                }
+            });
+            snk.show();
+        }catch (Exception e){
+            Log.d(tag, "displayPermissionSnackbar: "+e.toString());
+        }
     }
 
     public String formatstr(String total, String modify) {
@@ -701,9 +741,8 @@ public class Display extends AppCompatActivity {
             resultstr.append(" ");
 
             return resultstr.toString();
-        }
-        catch (Exception e){
-            Log.d(tag, "trimstr error : "+e.toString());
+        } catch (Exception e) {
+            Log.d(tag, "trimstr error : " + e.toString());
             return "";
         }
     }
@@ -747,7 +786,7 @@ public class Display extends AppCompatActivity {
 
                             if (name.length() <= 2) continue;
 
-                            int identifierLength=contactIdentifier.length();
+                            int identifierLength = contactIdentifier.length();
 
                             String nameEndString = name.substring(name.length() - identifierLength);
 
@@ -755,7 +794,7 @@ public class Display extends AppCompatActivity {
                                 ContactModel newContact = new ContactModel();
                                 newContact.id = id;
                                 newContact.serialNumber = "";
-                                newContact.name = name.substring(0,name.length() - identifierLength);
+                                newContact.name = name.substring(0, name.length() - identifierLength);
 
                                 newContact.mobileNumber = mobileNumber;
 
@@ -812,7 +851,7 @@ public class Display extends AppCompatActivity {
             String lastUpdateTime = shPref.getString(Helper.LastUpdatedTime, "last-updated");
             identifier = shPref.getString(Helper.Identifier, "SM");
             separator = shPref.getString(Helper.Separator, "%");
-            area = shPref.getString( Helper.Area, "देवली+ संगम विहार");
+            area = shPref.getString(Helper.Area, "देवली+ संगम विहार");
             totalMember = shPref.getString(Helper.TotalMember, "0");
 
             count.setText(totalMember);
@@ -844,6 +883,5 @@ public class Display extends AppCompatActivity {
         i.putExtra("value", inputStr);
         startActivity(i);
     }
-
 }
 
