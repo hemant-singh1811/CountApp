@@ -116,7 +116,7 @@ public class Display extends AppCompatActivity {
             public void onClick(View view) {
                 String inputStr = countstrings.getText().toString();
                 resizedText(inputStr);
-                vibrate(250);
+                vibrate(100);
             }
         });
 
@@ -148,8 +148,6 @@ public class Display extends AppCompatActivity {
                     }
                     resultantReport.append("\n \n \n");
 
-                    Log.d(tag, "absentMemberList: " + absentMemberList.length);
-
                     for (int j = 1; j < absentMemberList.length; j++) {
                         String absentMemberName = absentMemberList[j];
 
@@ -157,13 +155,13 @@ public class Display extends AppCompatActivity {
 
                         String trimmedName = trimstr(absentMemberName);
 
-                        resultantReport.append("").append(absentCount++).append(".")
-                                .append(trimmedName).append("\n \n");
+                        resultantReport.append("").append(absentCount++).append(".").append(trimmedName).append("\n \n");
 
                     }
 
                     copyData(resultantReport.toString());
-                    vibrate(250);
+                    vibrate(100);
+                    displayToast("copied");
                 } catch (Exception e) {
                     Log.d(tag, "onClick: " + e.toString());
                     displayToast("Something went wrong");
@@ -236,7 +234,8 @@ public class Display extends AppCompatActivity {
                 }
 
                 copyData(resultantReport.toString());
-                vibrate(250);
+                vibrate(100);
+                displayToast("copied");
 
             }
         });
@@ -255,16 +254,13 @@ public class Display extends AppCompatActivity {
 
             @Override
             public void afterTextChanged(Editable s) {
-                String updatedcount = count.getText().toString();
+                totalMember = count.getText().toString();
 
                 SharedPreferences.Editor myEdit = sharedPreferences.edit();
-                totalMember = updatedcount;
-                myEdit.putString(Helper.TotalMember, updatedcount);
+                myEdit.putString(Helper.TotalMember, totalMember);
                 myEdit.apply();
 
-                Toast t1 = Toast.makeText(getApplicationContext(), "Updated", Toast.LENGTH_SHORT);
-                t1.show();
-                vibrate(250);
+                vibrate(100);
 
             }
         });
@@ -287,7 +283,7 @@ public class Display extends AppCompatActivity {
 
                     countstrings.setSelection(countstrings.getText().length());
 
-                    vibrate(250);
+                    vibrate(100);
                 } catch (Exception e) {
                     Log.d(tag, "pasteButton onClick: " + e.toString());
                 }
@@ -299,37 +295,26 @@ public class Display extends AppCompatActivity {
 
             public void onClick(View v) {
                 try {
-
-                    ConstraintLayout rt = (ConstraintLayout)findViewById(R.id.bottomSpace);
-
-                    rt.setVisibility(View.VISIBLE);
-
-                    vibrate(250);
-
-                    String lastUpdated = Helper.getDate() + " " + Helper.getTime();
-                    lastupdatetime.setText(lastUpdated);
+                    vibrate(100);
 
                     int total = Integer.parseInt(count.getText().toString());
-
                     String inputHashText = countstrings.getText().toString();
                     String[] lines = new String[0];
+                    int[] arr = new int[total];
+                    boolean greaterSerialNumberFound = false;
+                    String lastUpdated = Helper.getDate() + " " + Helper.getTime();
 
-                    if (inputHashText.length() > 0)
-                        lines = inputHashText.split(separator);
+                    if (inputHashText.length() > 0) lines = inputHashText.split(separator);
 
                     absentMemberList = new String[total + 1];
                     Arrays.fill(absentMemberList, "null");
 
+                    for (String serialNumberAsString : lines) {
+                        int serialNumber = Integer.parseInt(serialNumberAsString);
 
-                    int[] arr = new int[total];
-
-                    for (String x : lines) {
-                        int c = Integer.parseInt(x);
-
-                        if (c <= total) arr[c - 1] = 1;
+                        if (serialNumber <= total) arr[serialNumber - 1] = 1;
                         else {
-                            displayToast("Number greater than total");
-                            vibrate(500);
+                            greaterSerialNumberFound = true;
                         }
                     }
 
@@ -352,7 +337,6 @@ public class Display extends AppCompatActivity {
                         }
                     }
 
-
                     presentMember = "" + (total - absentMembers);
                     absentMember = "" + absentMembers;
 
@@ -361,29 +345,20 @@ public class Display extends AppCompatActivity {
 
                     result.setText(ans.toString());
                     countabsent.setText(absentMembers + "");
+                    lastupdatetime.setText(lastUpdated);
 
-                    InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
 
-                    if (imm.isAcceptingText()) {
-                        hideKeyboard();
-                        Log.d(tag, "Software Keyboard was shown");
-                    } else {
-                        Log.d(tag, "Software Keyboard was not shown");
-                    }
+                    if (greaterSerialNumberFound) displayToast("Number greater than total");
+
+                    hideKeyboard();
+
+
                 } catch (Exception e) {
                     Log.d(tag, e.toString());
 
                     displayToast("Please enter correct");
 
-                    InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
-
-                    if (imm.isAcceptingText()) {
-                        hideKeyboard();
-                        Log.d(tag, "Software Keyboard was shown");
-                    } else {
-                        Log.d(tag, "Software Keyboard was not shown");
-                    }
-
+                    hideKeyboard();
                 }
             }
         });
@@ -391,21 +366,13 @@ public class Display extends AppCompatActivity {
         result.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                Context context = getApplicationContext();
-
-                int duration = Toast.LENGTH_SHORT;
-
-                displayToast("copied");
-
-                Toast toast1 = Toast.makeText(context, "copied", duration);
-                toast1.show();
-
-                String getstring = result.getText().toString();
+                String absentListAsString = result.getText().toString();
 
                 ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-                ClipData clip = ClipData.newPlainText("label", getstring);
+                ClipData clip = ClipData.newPlainText("label", absentListAsString);
                 clipboard.setPrimaryClip(clip);
-                vibrate(250);
+                displayToast("copied");
+                vibrate(100);
 
             }
         });
@@ -416,7 +383,7 @@ public class Display extends AppCompatActivity {
                 countstrings.setText("");
                 result.setText("");
                 countabsent.setText("");
-                vibrate(250);
+                vibrate(100);
             }
         });
 
@@ -457,7 +424,6 @@ public class Display extends AppCompatActivity {
 
     public void setSharedPreferences() {
         try {
-
             SharedPreferences sharedPreferencesGroup = getSharedPreferences("group", MODE_PRIVATE);
             sPref = sharedPreferencesGroup.getString(Helper.SelectedGroup, "MainGroupSharedPref");
             sharedPreferences = getSharedPreferences(sPref, MODE_PRIVATE);
@@ -500,7 +466,7 @@ public class Display extends AppCompatActivity {
 
                 String printMessage = foundContacts + " Contacts Found with " + contactIdentifier;
                 displaySnackbar(view, printMessage);
-                vibrate(1000);
+                vibrate(250);
 
                 setVisibility(simpleProgressBar, updateContactsButton, false);
 
@@ -580,13 +546,11 @@ public class Display extends AppCompatActivity {
     }
 
     public void startContactUpdating() {
-            updatecontactobj = new UpdateContacts(view, identifier);
-            updatecontactobj.start();
+        updatecontactobj = new UpdateContacts(view, identifier);
+        updatecontactobj.start();
     }
 
     public void updateConfig(View view) {
-        Log.d(tag, "display resume");
-
         SharedPreferences sharedPreferences = getSharedPreferences(sPref, MODE_PRIVATE);
 
         separator = sharedPreferences.getString(Helper.Separator, "%");
@@ -615,17 +579,12 @@ public class Display extends AppCompatActivity {
             snk.setAction("Set Permission", new OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    startActivity(
-                            new Intent(
-                                    android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
-                                    Uri.fromParts("package", getPackageName(), null)
-                            )
-                    );
+                    startActivity(new Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.fromParts("package", getPackageName(), null)));
                 }
             });
             snk.show();
-        }catch (Exception e){
-            Log.d(tag, "displayPermissionSnackbar: "+e.toString());
+        } catch (Exception e) {
+            Log.d(tag, "displayPermissionSnackbar: " + e.toString());
         }
     }
 
@@ -649,6 +608,14 @@ public class Display extends AppCompatActivity {
     }
 
     public void vibrate(int duration) {
+
+        SharedPreferences sharedPreferences1 = getSharedPreferences("group", MODE_PRIVATE);
+        String isVibrate = sharedPreferences1.getString(Helper.isVibrate, "false");
+
+        Log.d(tag, "vibrate: "+isVibrate);
+
+        if(isVibrate.equals("false")) return;
+
         Vibrator vib = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
         // Vibrate for 2000 milliseconds
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -672,7 +639,14 @@ public class Display extends AppCompatActivity {
 
     public void hideKeyboard() {
         InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
-        imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+
+        if (imm.isAcceptingText()) {
+            imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+
+            Log.d(tag, "Software Keyboard was shown");
+        } else {
+            Log.d(tag, "Software Keyboard was not shown");
+        }
     }
 
     public String getNumericEmoji(String member) {

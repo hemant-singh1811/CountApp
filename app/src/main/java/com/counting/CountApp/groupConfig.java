@@ -31,13 +31,14 @@ public class groupConfig extends AppCompatActivity {
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
             sPref = extras.getString("sPref");
-            String reportFormat=extras.getString("reportFormat");
-            Log.d(tag, "onCreate: reportFormat : "+reportFormat);
-            this.reportFormat=reportFormat.split("#");
+            String reportFormat = extras.getString("reportFormat");
+            Log.d(tag, "onCreate: reportFormat : " + reportFormat);
+            this.reportFormat = reportFormat.split("#");
 
-            sharedPreferences=getSharedPreferences(sPref,MODE_PRIVATE);
+            sharedPreferences = getSharedPreferences(sPref, MODE_PRIVATE);
             setText(sharedPreferences);
         }
+
 
         setReportFormat(reportFormat);
 
@@ -101,7 +102,6 @@ public class groupConfig extends AppCompatActivity {
             }
         });
 
-
     }
 
     public void saveConfig(View v){
@@ -117,19 +117,10 @@ public class groupConfig extends AppCompatActivity {
         myEdit.putString(Helper.Separator, separator.getText().toString());
         myEdit.commit();
 
-        Toast t1=Toast.makeText(getApplicationContext(),"Setting are Saved", Toast.LENGTH_SHORT);
-        t1.show();
-
         String area=areaTag.getText().toString();
         setArea(area);
 
-//        Intent i = new Intent(getApplicationContext(), Display.class);
-//        i.putExtra("prev", "groupConfig");
-//        startActivity(i);
-
         super.onBackPressed();
-
-
     }
 
     public void setArea(String area){

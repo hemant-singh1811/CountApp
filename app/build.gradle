@@ -18,8 +18,8 @@ android {
         applicationId "com.counting.CountApp"
         minSdk 21
         targetSdk 33
-        versionCode 11
-        versionName "11.1"
+        versionCode 13
+        versionName "13.1"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -35,7 +35,7 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
     buildFeatures {
-        viewBinding true
+        viewBinding false
     }
 }
 

@@ -49,3 +49,20 @@ group:{
         //      ->key: ("totalmaingroupmember") , ("totallearninggroupmember")
         // 4- lastupdate time -> ("lastupdate")
         //      ->key :  ("mainlastupdate")  ("learninglastupdate")
+
+
+
+
+Message from 30. Chandra Pal dass TLH SV  -> personal message
+
+I group
+
+Package : com.whatsapp
+Ticker:
+Title : Sample testing group: Hemant or Sample testing group (2 messages): Hemant
+Text : hi
+
+Package : com.whatsapp
+Ticker : Message from Hemant @ Sample testing group
+Title : WhatsApp
+Text : 10 messages from 10 chats

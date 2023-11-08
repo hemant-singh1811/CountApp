@@ -17,6 +17,8 @@ public class Helper {
     public static final String Area="area";
     public static final String TotalMember="totalMember";
     public static final String ReportFormat="reportFormat";
+    public static final String isVibrate="isVibrate";
+
 
     public static String getDate() {
         String currentDate = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(new Date());
