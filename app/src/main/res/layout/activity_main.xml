@@ -8,6 +8,8 @@
     tools:context="com.counting.CountApp.MainActivity"
     android:orientation="vertical">
 
+<!--    ToolBar-->
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
@@ -82,12 +84,12 @@
         />
 
 
-<!--    <ListView-->
-<!--        android:id="@+id/mobile_list"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:layout_marginTop="20dp">-->
-<!--    </ListView>-->
+    <ListView
+        android:id="@+id/list"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp">
+    </ListView>
 
 
 

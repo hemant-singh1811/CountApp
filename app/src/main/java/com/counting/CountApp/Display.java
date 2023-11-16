@@ -450,7 +450,6 @@ public class Display extends AppCompatActivity {
 
             try {
                 setVisibility(simpleProgressBar, updateContactsButton, true);
-
                 displaySnackbar(view, contactIdentifier + " Tag Contact Updating....");
                 vibrate(100);
 
@@ -463,6 +462,7 @@ public class Display extends AppCompatActivity {
                 List<ContactModel> groupMemberContacts = contactsList[0];
                 int foundContacts = groupMemberContacts.size();
                 putContactsIntoStorage(groupMemberContacts);
+
 
                 String printMessage = foundContacts + " Contacts Found with " + contactIdentifier;
                 displaySnackbar(view, printMessage);
@@ -612,9 +612,9 @@ public class Display extends AppCompatActivity {
         SharedPreferences sharedPreferences1 = getSharedPreferences("group", MODE_PRIVATE);
         String isVibrate = sharedPreferences1.getString(Helper.isVibrate, "false");
 
-        Log.d(tag, "vibrate: "+isVibrate);
+        Log.d(tag, "vibrate: " + isVibrate);
 
-        if(isVibrate.equals("false")) return;
+        if (isVibrate.equals("false")) return;
 
         Vibrator vib = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
         // Vibrate for 2000 milliseconds
@@ -758,47 +758,77 @@ public class Display extends AppCompatActivity {
                             String name = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
                             String mobileNumber = cursorInfo.getString(cursorInfo.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
 
-                            if (name.length() <= 2) continue;
-
                             int identifierLength = contactIdentifier.length();
-
+                            if (name.length() <= identifierLength) continue;
                             String nameEndString = name.substring(name.length() - identifierLength);
 
                             if (Character.isDigit(name.charAt(0)) && nameEndString.equals(contactIdentifier)) {
+
                                 ContactModel newContact = new ContactModel();
+
                                 newContact.id = id;
                                 newContact.serialNumber = "";
+                                newContact.mobileNumber = mobileNumber;
                                 newContact.name = name.substring(0, name.length() - identifierLength);
 
-                                newContact.mobileNumber = mobileNumber;
+                                int serialNumber=getSerialNumberFromNameString(name);
+
+                                if(serialNumber==-1) continue;
+
+                                newContact.serialNumber=""+serialNumber;
 
                                 if (isBelongToLearningGroup(name)) {
-                                    String[] arr = name.split(" .");
-                                    newContact.serialNumber = "" + getSerialNumber(arr[0]);
                                     contactListLearn.add(newContact);
                                 } else {
                                     if (!mainmap.containsKey(newContact.mobileNumber)) {
-                                        String[] arr = name.split(" .");
-                                        newContact.serialNumber = "" + getSerialNumber(arr[0]);
                                         contactList.add(newContact);
                                         mainmap.put(newContact.mobileNumber, 1);
                                     }
                                 }
                             }
+
                         }
                         cursorInfo.close();
                     }
                 }
                 cursor.close();
             }
+
             list[0] = new ArrayList<>(contactList);
             list[1] = new ArrayList<>(contactListLearn);
 
             return list;
 
-        } catch (SecurityException e) {
+        } catch (Exception e) {
+            Log.d(tag, "getContacts: erroe : " + e.toString());
             return null;
         }
+    }
+
+    public static int getSerialNumberFromNameString(String name) {
+
+        boolean dotFound = false;
+        String serialNumberAsString = "";
+
+        for (int i = 0; i < name.length(); i++) {
+            Character ch = name.charAt(i);
+            if (Character.compare(ch, '.') == 0) {
+                dotFound = true;
+                break;
+            } else {
+
+                serialNumberAsString += ch;
+            }
+        }
+
+        serialNumberAsString = serialNumberAsString.replaceAll("\\s", "");
+
+        if (dotFound) {
+            return getSerialNumber(serialNumberAsString);
+        } else {
+            return -1;
+        }
+
     }
 
     public void copyData(String displayString) {
