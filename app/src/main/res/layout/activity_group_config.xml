@@ -28,7 +28,7 @@
         android:layout_marginTop="32dp"
         android:ems="10"
         android:inputType="textPersonName"
-        android:text="Name"
+        android:text="%"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.857"
         app:layout_constraintStart_toStartOf="parent"
@@ -67,7 +67,7 @@
         android:layout_marginTop="28dp"
         android:ems="10"
         android:inputType="textPersonName"
-        android:text="देवली+ संगम विहार"
+        android:text="CBSE"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.857"
         app:layout_constraintStart_toStartOf="parent"
@@ -81,7 +81,7 @@
         android:layout_marginTop="48dp"
         android:ems="10"
         android:inputType="textPersonName"
-        android:text="Name"
+        android:text="10th"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.857"
         app:layout_constraintStart_toStartOf="parent"
@@ -132,7 +132,7 @@
 
 
     <TextView
-        android:id="@+id/reportFormat"
+        android:id="@+id/reportFormat1"
         android:layout_width="309dp"
         android:layout_height="327dp"
         android:inputType="textMultiLine"
@@ -143,7 +143,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.695" />
 
-<!--    <androidx.constraintlayout.widget.ConstraintLayout-->
+    <!--    <androidx.constraintlayout.widget.ConstraintLayout-->
 <!--        android:id="@+id/constraintLayout"-->
 <!--        android:layout_width="match_parent"-->
 <!--        android:layout_height="wrap_content"-->
@@ -204,30 +204,38 @@
 <!--    </androidx.constraintlayout.widget.ConstraintLayout>-->
 
 
-
-
-
+    <EditText
+        android:id="@+id/reportFormat"
+        android:layout_width="309dp"
+        android:layout_height="327dp"
+        android:hint="Make your Report Here access data by entering ${area} ${date} ${total} ${present} ${absent}"
+        android:inputType="textMultiLine"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.539"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.754" />
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/savebtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:background="@drawable/round_button"
+        android:bottomLeftRadius="10dp"
+        android:bottomRightRadius="10dp"
         android:onClick="saveConfig"
         android:text="Save"
-        android:textSize="16sp"
         android:textColor="@color/white"
-        app:cornerRadius="28dp"
-        android:background="@drawable/round_button"
-        android:bottomRightRadius="10dp"
-        android:bottomLeftRadius="10dp"
+        android:textSize="16sp"
         android:topLeftRadius="10dp"
+        app:cornerRadius="28dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/separator"
-        app:layout_constraintVertical_bias="0.911"
-         />
+        app:layout_constraintVertical_bias="0.944" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

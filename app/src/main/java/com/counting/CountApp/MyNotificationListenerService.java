@@ -13,8 +13,8 @@ public class MyNotificationListenerService extends NotificationListenerService {
     String TAG = "MyNotificationListenerServiceTAG";
     final String TargetApplicationPackage = "com.whatsapp";
 
-        final String group1 = "SANGAM VIHAR SOCIAL M DL";
-//    final String group1 = "🙏Sample testing group🙏" ;
+    final String group1 = "SANGAM VIHAR SOCIAL M DL";
+    //    final String group1 = "🙏Sample testing group🙏" ;
     final String group2 = "South Delhi Learning G DL";
 
     final String group1SPref = "MainGroupSharedPref";
@@ -39,11 +39,11 @@ public class MyNotificationListenerService extends NotificationListenerService {
             String[] TickerArray = Ticker.split("@");
 
 
-                Log.i(TAG, "onNotificationPosted Package : " + packageName);
-                Log.i(TAG, "onNotificationPosted Ticker : " + Ticker);
-                Log.i(TAG, "onNotificationPosted Title : " + title);
-                Log.i(TAG, "onNotificationPosted Text : " + text);
-                Log.i(TAG, "onNotificationPosted nTickerArray Size : " + TickerArray.length);
+            Log.i(TAG, "onNotificationPosted Package : " + packageName);
+            Log.i(TAG, "onNotificationPosted Ticker : " + Ticker);
+            Log.i(TAG, "onNotificationPosted Title : " + title);
+            Log.i(TAG, "onNotificationPosted Text : " + text);
+            Log.i(TAG, "onNotificationPosted nTickerArray Size : " + TickerArray.length);
 
 
             if (TickerArray.length > 1) {
@@ -96,7 +96,7 @@ public class MyNotificationListenerService extends NotificationListenerService {
 
                 inputHashText += serialNumber + separator;
             } else {
-                inputHashText=""+ serialNumber + separator;
+                inputHashText = "" + serialNumber + separator;
             }
 
             SharedPreferences.Editor myEdit = sharedPreferences.edit();

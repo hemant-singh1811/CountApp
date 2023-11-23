@@ -9,7 +9,9 @@ import java.util.Locale;
 
 public class Helper {
 
+    public static final String MainAppSharedPreferences="#CountApp#";
     public static final String SelectedGroup="sPref";
+    public static final String SelectedGroupName="SelectedGroupName";
     public static final String InputHashText="inputHashText";
     public static final String LastUpdatedTime="lastUpdatedTime";
     public static final String Identifier="identifier";
@@ -18,6 +20,7 @@ public class Helper {
     public static final String TotalMember="totalMember";
     public static final String ReportFormat="reportFormat";
     public static final String isVibrate="isVibrate";
+    public static final String GroupsDetails="GroupsArrayAsString";
 
 
     public static String getDate() {
