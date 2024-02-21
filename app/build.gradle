@@ -5,7 +5,7 @@ plugins {
 android {
     signingConfigs {
         debug {
-            storeFile file('/Users/hemantsingh/Documents/CountAppKeyStore')
+            storeFile file('/Users/hemant/Documents/CountAppKeyStore')
             storePassword '11seattle'
             keyAlias 'key0'
             keyPassword '11seattle'
