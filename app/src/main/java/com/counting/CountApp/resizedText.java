@@ -1,5 +1,6 @@
 package com.counting.CountApp;
 
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.ClipData;
@@ -25,6 +26,7 @@ public class resizedText extends AppCompatActivity {
     String sPref="";
     SharedPreferences sharedPreferences =null;
     String inputString="";
+    String AppBarTitle="Count";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,11 +37,17 @@ public class resizedText extends AppCompatActivity {
         if (extras != null) {
             String value = extras.getString("sPref");
             inputString = extras.getString("value");
-
+            AppBarTitle=extras.getString("SelectedGroupName");
             sPref=value;
 
             sharedPreferences=getSharedPreferences(sPref,MODE_PRIVATE);
         }
+
+        Log.d(tag, "onCreate: AppBarTitle : "+AppBarTitle);
+
+        ActionBar actionBar = getSupportActionBar();
+
+        actionBar.setTitle(AppBarTitle);
 
         EditText inputStringView=(EditText) findViewById(R.id.inputString);
         ImageView pasteButton=(ImageView) findViewById(R.id.pasteButton);
